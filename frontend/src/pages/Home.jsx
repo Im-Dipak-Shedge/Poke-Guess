@@ -1,96 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Users } from "lucide-react";
+import PlayWithFriendsModal from "../components/PlayWithFriendsModal";
+import Pokeball from "../components/Pokeball";
+import { useNavigate } from "react-router-dom";
+import CreateRoomModal from "../components/CreateRoomModal";
 
 const trainers = [
   {
-    name: "Volt",
-    type: "Electric",
     img: "/avatars/trainer1.png",
   },
   {
-    name: "Ember",
-    type: "Fire",
     img: "/avatars/trainer2.png",
   },
   {
-    name: "Marina",
-    type: "Water",
     img: "/avatars/trainer3.png",
   },
   {
-    name: "Sprout",
-    type: "Grass",
     img: "/avatars/trainer4.png",
   },
   {
-    name: "Luna",
-    type: "Psychic",
     img: "/avatars/trainer5.png",
   },
   {
-    name: "Rex",
-    type: "Dragon",
     img: "/avatars/trainer6.png",
   },
 ];
-
-function Pokeball({ className = "w-6 h-6", spinning = false, style }) {
-  return (
-    <svg
-      viewBox="0 0 64 64"
-      className={`${className} ${spinning ? "animate-spin-slow" : ""}`}
-      style={style}
-    >
-      <defs>
-        <clipPath id="pb-top">
-          <rect x="0" y="0" width="64" height="30" />
-        </clipPath>
-        <clipPath id="pb-bottom">
-          <rect x="0" y="34" width="64" height="30" />
-        </clipPath>
-      </defs>
-      <circle cx="32" cy="32" r="29" fill="#EF4444" clipPath="url(#pb-top)" />
-      <circle
-        cx="32"
-        cy="32"
-        r="29"
-        fill="#FFFFFF"
-        clipPath="url(#pb-bottom)"
-      />
-      <circle
-        cx="32"
-        cy="32"
-        r="29"
-        fill="none"
-        stroke="#1B2140"
-        strokeWidth="3"
-      />
-      <rect x="1" y="29" width="62" height="6" fill="#1B2140" />
-      <circle
-        cx="32"
-        cy="32"
-        r="9"
-        fill="#FFFFFF"
-        stroke="#1B2140"
-        strokeWidth="3.5"
-      />
-      <circle
-        cx="32"
-        cy="32"
-        r="3.5"
-        fill="#FFFFFF"
-        stroke="#1B2140"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
 
 export default function Home() {
   const [index, setIndex] = useState(0);
   const [name, setName] = useState("");
   const [flash, setFlash] = useState(false);
+  const [showPlayModal, setShowPlayModal] = useState(false); //to show the play with friends modal
   const [status, setStatus] = useState("");
+  const navigate = useNavigate();
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -283,7 +226,6 @@ export default function Home() {
               <div className="flex flex-col items-center gap-1 mx-2">
                 <img
                   src={current.img}
-                  alt={current.name}
                   className={`w-28 h-28 object-contain transition-all duration-150 ${
                     flash ? "opacity-0 scale-75" : "opacity-100 scale-100"
                   }`}
@@ -304,15 +246,23 @@ export default function Home() {
               className="w-full bg-gradient-to-b from-yellow-300 to-yellow-400 hover:brightness-105 active:scale-[0.98] transition text-yellow-900 text-sm font-bold uppercase tracking-wide rounded-full py-3 mb-3 flex items-center justify-center gap-2 border-2 border-yellow-600/40 shadow-[0_5px_0_#B8860B] active:shadow-[0_1px_0_#B8860B] active:translate-y-1"
             >
               <Pokeball className="w-4 h-4" />
-              Play
+              Practice
             </button>
 
             <button
-              onClick={() => requireName("Creating a room...")}
+              onClick={() => {
+                if (!name.trim()) {
+                  setStatus("Enter a trainer name first");
+                  return;
+                }
+
+                setStatus("");
+                setShowPlayModal(true);
+              }}
               className="w-full bg-gradient-to-b from-green-400 to-green-500 hover:brightness-105 active:scale-[0.98] transition text-white text-sm font-bold uppercase tracking-wide rounded-full py-3 flex items-center justify-center gap-2 border-2 border-green-700/40 shadow-[0_5px_0_#1F6B37] active:shadow-[0_1px_0_#1F6B37] active:translate-y-1"
             >
               <Users size={16} strokeWidth={2.5} />
-              Create a room
+              Play With Friends
             </button>
           </div>
         </div>
@@ -326,6 +276,41 @@ export default function Home() {
         @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .animate-spin-slow { animation: spin-slow 3s linear infinite; }
       `}</style>
+
+      <PlayWithFriendsModal
+        open={showPlayModal}
+        onClose={() => setShowPlayModal(false)}
+        onCreateRoom={() => {
+          setShowPlayModal(false);
+          setShowCreateRoom(true);
+        }}
+        onJoinRoom={(roomId) => {
+          navigate(`/room/${roomId}`);
+        }}
+      />
+
+      <CreateRoomModal
+        open={showCreateRoom}
+        onClose={() => setShowCreateRoom(false)}
+        onCreate={(settings) => {
+          const roomId = Math.random()
+            .toString(36)
+            .substring(2, 8)
+            .toUpperCase();
+
+          navigate(`/room/${roomId}`, {
+            state: {
+              roomId,
+              trainer: name,
+              trainerImage: current.img,
+              settings,
+              isHost: true,
+            },
+          });
+
+          setShowCreateRoom(false);
+        }}
+      />
     </div>
   );
 }
