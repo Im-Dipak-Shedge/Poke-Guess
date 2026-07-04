@@ -55,7 +55,6 @@ ${
 
           <button
             onClick={() => {
-              setShowJoin(false);
               setRoomId("");
               onClose();
             }}

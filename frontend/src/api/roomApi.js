@@ -1,6 +1,7 @@
-import api from "../../../backend/utils/api";
+import api from "./axios";
 
 export const createRoom = (data) => {
+
     return api.post("/rooms/create", data);
 };
 

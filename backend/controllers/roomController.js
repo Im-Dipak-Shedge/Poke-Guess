@@ -5,9 +5,12 @@ export const createRoom = async (req, res) => {
     try {
         const {
             hostName,
+            avatar,
             rounds,
             generations,
         } = req.body;
+
+        console.log(hostName, avatar, rounds, generations);
 
         let roomId;
 
@@ -20,17 +23,17 @@ export const createRoom = async (req, res) => {
         }
 
         const room = await Room.create({
-            roomId,
+            roomCode: roomId,
 
-            host: hostName,
-
-            rounds,
-
-            generations,
+            settings: {
+                rounds,
+                generations,
+            },
 
             players: [
                 {
-                    name: hostName,
+                    trainerName: hostName,
+                    trainerAvatar: avatar,
                     score: 0,
                     isHost: true,
                 },

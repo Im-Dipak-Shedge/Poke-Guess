@@ -8,10 +8,17 @@ dotenv.config();
 
 const app = express();
 
-// Connecting Database
+//Connecting Database
 connectDB();
 
-app.use(cors());
+//cross-origin resource sharing (CORS) middleware
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    })
+);
+
 app.use(express.json());
 app.use("/api/rooms", roomRouter);
 

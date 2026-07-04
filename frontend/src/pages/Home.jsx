@@ -74,12 +74,18 @@ export default function Home() {
     try {
       const { data } = await createRoom({
         hostName: name,
-        ...settings,
+        avatar: current.img,
+        ...settings, //rounds and generations
       });
 
       setShowPlayModal(false);
 
-      navigate(`/room/${data.roomId}`);
+      navigate(`/room/${data.roomCode}`, {
+        state: {
+          room: data,
+          isHost: true,
+        },
+      });
     } catch (err) {
       alert(err.response?.data?.message || "Couldn't create room");
     }
