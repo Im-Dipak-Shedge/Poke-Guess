@@ -1,4 +1,4 @@
-import { Crown, Copy, Users, Play, LogOut } from "lucide-react";
+import { Crown, Copy, Check, Users, Play, LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Pokeball from "../components/Pokeball";
 import socket from "../socket";
@@ -8,6 +8,7 @@ export default function Lobby() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [roomData, setRoomData] = useState(state?.room || null);
+  const [copied, setCopied] = useState(false);
 
   if (!state || !state.room) {
     return (
@@ -25,34 +26,46 @@ export default function Lobby() {
     );
   }
 
-  const { isHost } = state;
+  const { isHost, trainerName } = state;
 
   useEffect(() => {
     socket.on("room-updated", (updatedRoom) => {
       setRoomData(updatedRoom);
     });
 
+    socket.on("room-closed", () => {
+      alert("Host left the room.");
+      navigate("/");
+    });
+
     return () => {
       socket.off("room-updated");
+      socket.off("room-closed");
     };
   }, []);
 
   useEffect(() => {
     if (!roomData) return;
-
-    // console.log("Joining socket room:", roomData.roomCode);
-
+    if (!socket.connected) {
+      socket.connect();
+    }
     socket.emit("join-room", {
       roomCode: roomData.roomCode,
+      trainerName,
     });
-  }, [roomData]);
+  }, []);
 
   const copyRoomCode = async () => {
     try {
       await navigator.clipboard.writeText(roomData.roomCode);
-      alert("Room code copied!");
-    } catch {
-      alert("Couldn't copy room code.");
+
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -113,7 +126,11 @@ export default function Lobby() {
                 {roomData.roomCode}
               </span>
 
-              <Copy size={18} />
+              {copied ? (
+                <Check size={18} className="text-green-600" />
+              ) : (
+                <Copy size={18} />
+              )}
             </button>
           </div>
 
@@ -153,7 +170,7 @@ export default function Lobby() {
               {roomData.players.map((player, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-xl border px-3 py-2 flex items-center justify-between"
+                  className="rounded-xl border px-3 py-2 flex items-center justify-between transition-all bg-white border-gray-300"
                 >
                   <div className="flex items-center gap-3">
                     <img
@@ -161,10 +178,15 @@ export default function Lobby() {
                       alt={player.trainerName}
                       className="w-10 h-10 object-contain"
                     />
-
                     <div>
-                      <p className="font-semibold text-sm">
+                      <p
+                        className={`font-semibold text-sm flex items-center gap-2 ${player.trainerName === trainerName ? "text-green-500" : "text-gray-800"}`}
+                      >
                         {player.trainerName}
+
+                        {player.trainerName === trainerName && (
+                          <span className=" ml-3 text-green-500 ">(You)</span>
+                        )}
                       </p>
 
                       <p className="text-xs text-gray-500">
@@ -198,7 +220,10 @@ export default function Lobby() {
           )}
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              socket.disconnect();
+              navigate("/");
+            }}
             className="w-full bg-red-500 text-white font-bold rounded-full py-3 flex items-center justify-center gap-2"
           >
             <LogOut size={18} />

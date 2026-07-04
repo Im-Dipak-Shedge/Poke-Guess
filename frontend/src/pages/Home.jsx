@@ -84,6 +84,7 @@ export default function Home() {
         state: {
           room: data,
           isHost: true,
+          trainerName: name,
         },
       });
     } catch (err) {
@@ -102,6 +103,7 @@ export default function Home() {
         state: {
           room: data,
           isHost: false,
+          trainerName: name,
         },
       });
     } catch (err) {
