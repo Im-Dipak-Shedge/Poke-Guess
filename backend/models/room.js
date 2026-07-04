@@ -27,10 +27,6 @@ const playerSchema = new mongoose.Schema(
             default: false,
         },
 
-        joinedAt: {
-            type: Date,
-            default: Date.now,
-        },
     },
     { _id: false }
 );

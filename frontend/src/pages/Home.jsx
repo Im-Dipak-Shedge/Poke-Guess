@@ -4,7 +4,7 @@ import PlayWithFriendsModal from "../components/PlayWithFriendsModal";
 import Pokeball from "../components/Pokeball";
 import { useNavigate } from "react-router-dom";
 import CreateRoomModal from "../components/CreateRoomModal";
-
+import { createRoom, joinRoom } from "../api/roomApi";
 const trainers = [
   {
     img: "/avatars/trainer1.png",
@@ -33,7 +33,6 @@ export default function Home() {
   const [showPlayModal, setShowPlayModal] = useState(false); //to show the play with friends modal
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
-  const [showCreateRoom, setShowCreateRoom] = useState(false);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -70,6 +69,38 @@ export default function Home() {
     { top: "78%", left: "8%", size: 30, opacity: 0.2, rotate: 15 },
     { top: "82%", left: "88%", size: 36, opacity: 0.2, rotate: -10 },
   ];
+
+  const handleCreateRoom = async (settings) => {
+    try {
+      const { data } = await createRoom({
+        hostName: name,
+        ...settings,
+      });
+
+      setShowPlayModal(false);
+
+      navigate(`/room/${data.roomId}`);
+    } catch (err) {
+      alert(err.response?.data?.message || "Couldn't create room");
+    }
+  };
+
+  const handleJoinRoom = async (roomId) => {
+    try {
+      const { data } = await joinRoom(roomId, name);
+
+      setShowPlayModal(false);
+
+      navigate(`/room/${roomId}`, {
+        state: {
+          room: data,
+          isHost: false,
+        },
+      });
+    } catch (err) {
+      alert(err.response?.data?.message || "Room not found");
+    }
+  };
 
   return (
     <div
@@ -280,36 +311,8 @@ export default function Home() {
       <PlayWithFriendsModal
         open={showPlayModal}
         onClose={() => setShowPlayModal(false)}
-        onCreateRoom={() => {
-          setShowPlayModal(false);
-          setShowCreateRoom(true);
-        }}
-        onJoinRoom={(roomId) => {
-          navigate(`/room/${roomId}`);
-        }}
-      />
-
-      <CreateRoomModal
-        open={showCreateRoom}
-        onClose={() => setShowCreateRoom(false)}
-        onCreate={(settings) => {
-          const roomId = Math.random()
-            .toString(36)
-            .substring(2, 8)
-            .toUpperCase();
-
-          navigate(`/room/${roomId}`, {
-            state: {
-              roomId,
-              trainer: name,
-              trainerImage: current.img,
-              settings,
-              isHost: true,
-            },
-          });
-
-          setShowCreateRoom(false);
-        }}
+        onCreateRoom={handleCreateRoom}
+        onJoinRoom={handleJoinRoom}
       />
     </div>
   );

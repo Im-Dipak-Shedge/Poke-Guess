@@ -9,7 +9,6 @@ export default function PlayWithFriendsModal({
   onCreateRoom,
   onJoinRoom,
 }) {
-  const [showJoin, setShowJoin] = useState(false);
   const [roomId, setRoomId] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   //   if (!open) return null;
@@ -90,7 +89,7 @@ ${
 
           {/* Join Room */}
           <button
-            onClick={() => onJoinRoom(roomId)}
+            onClick={() => handleJoin(roomId)}
             className="w-full mb-5 bg-gradient-to-b from-green-400 to-green-500 text-white font-bold rounded-full py-3 flex items-center justify-center gap-2 border-2 border-green-700/40 shadow-[0_5px_0_#1F6B37] active:translate-y-1 active:shadow-[0_1px_0_#1F6B37]"
           >
             <DoorOpen size={18} />
