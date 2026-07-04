@@ -52,3 +52,51 @@ export const createRoom = async (req, res) => {
 
     }
 };
+
+
+export const joinRoom = async (req, res) => {
+    try {
+        const { roomCode, trainerName, trainerAvatar } = req.body;
+
+        const room = await Room.findOne({ roomCode });
+
+        if (!room) {
+            return res.status(404).json({
+                message: "Room not found",
+            });
+        }
+
+        if (room.players.length >= room.maxPlayers) {
+            return res.status(400).json({
+                message: "Room is full",
+            });
+        }
+
+        const alreadyJoined = room.players.find(
+            (player) => player.trainerName === trainerName
+        );
+
+        if (alreadyJoined) {
+            return res.status(400).json({
+                message: "Trainer name already taken",
+            });
+        }
+
+        room.players.push({
+            trainerName,
+            trainerAvatar,
+            score: 0,
+            isHost: false,
+        });
+
+        await room.save();
+
+        res.status(200).json(room);
+    } catch (err) {
+        console.log(err);
+
+        res.status(500).json({
+            message: "Couldn't join room",
+        });
+    }
+};

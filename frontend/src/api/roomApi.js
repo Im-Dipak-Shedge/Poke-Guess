@@ -5,13 +5,14 @@ export const createRoom = (data) => {
     return api.post("/rooms/create", data);
 };
 
-export const joinRoom = (roomId, playerName) => {
+export const joinRoom = (roomCode, trainerName, trainerAvatar) => {
     return api.post("/rooms/join", {
-        roomId,
-        playerName,
+        roomCode,
+        trainerName,
+        trainerAvatar,
     });
 };
 
-export const getRoom = (roomId) => {
-    return api.get(`/rooms/${roomId}`);
+export const getRoom = (roomCode) => {
+    return api.get(`/rooms/${roomCode}`);
 };

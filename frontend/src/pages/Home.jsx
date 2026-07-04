@@ -91,13 +91,14 @@ export default function Home() {
     }
   };
 
-  const handleJoinRoom = async (roomId) => {
+  const handleJoinRoom = async (roomCode) => {
     try {
-      const { data } = await joinRoom(roomId, name);
+      const { data } = await joinRoom(roomCode, name, current.img);
+      console.log(data);
 
       setShowPlayModal(false);
 
-      navigate(`/room/${roomId}`, {
+      navigate(`/room/${data.roomCode}`, {
         state: {
           room: data,
           isHost: false,
@@ -168,7 +169,7 @@ export default function Home() {
             textShadow: "0 4px 0 rgba(0,0,0,0.2)",
           }}
         >
-          <h className="text-amber-200">Poke</h>Guess
+          <span className="text-amber-200">Poke</span>Guess
         </h1>
         <p
           className="text-yellow-300 text-xs font-semibold tracking-widest uppercase mb-6"
