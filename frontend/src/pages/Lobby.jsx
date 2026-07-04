@@ -1,11 +1,13 @@
 import { Crown, Copy, Users, Play, LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Pokeball from "../components/Pokeball";
+import socket from "../socket";
+import { useEffect, useState } from "react";
 
 export default function Lobby() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  console.log(state);
+  const [roomData, setRoomData] = useState(state?.room || null);
 
   if (!state || !state.room) {
     return (
@@ -23,11 +25,31 @@ export default function Lobby() {
     );
   }
 
-  const { room, isHost } = state;
+  const { isHost } = state;
+
+  useEffect(() => {
+    socket.on("room-updated", (updatedRoom) => {
+      setRoomData(updatedRoom);
+    });
+
+    return () => {
+      socket.off("room-updated");
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!roomData) return;
+
+    // console.log("Joining socket room:", roomData.roomCode);
+
+    socket.emit("join-room", {
+      roomCode: roomData.roomCode,
+    });
+  }, [roomData]);
 
   const copyRoomCode = async () => {
     try {
-      await navigator.clipboard.writeText(room.roomCode);
+      await navigator.clipboard.writeText(roomData.roomCode);
       alert("Room code copied!");
     } catch {
       alert("Couldn't copy room code.");
@@ -88,7 +110,7 @@ export default function Lobby() {
               className="mt-2 w-full bg-white border-2 border-dashed border-gray-400 rounded-xl py-3 flex items-center justify-center gap-2"
             >
               <span className="font-black tracking-[5px] text-xl">
-                {room.roomCode}
+                {roomData.roomCode}
               </span>
 
               <Copy size={18} />
@@ -101,14 +123,14 @@ export default function Lobby() {
             <div className="bg-blue-100 rounded-xl p-3 text-center">
               <p className="text-[11px] text-gray-500">Rounds</p>
 
-              <p className="text-xl font-bold">{room.settings.rounds}</p>
+              <p className="text-xl font-bold">{roomData.settings.rounds}</p>
             </div>
 
             <div className="bg-green-100 rounded-xl p-3 text-center">
               <p className="text-[11px] text-gray-500">Generations</p>
 
               <p className="font-bold text-sm">
-                {room.settings.generations.join(", ")}
+                {roomData.settings.generations.join(", ")}
               </p>
             </div>
           </div>
@@ -123,12 +145,12 @@ export default function Lobby() {
               </h2>
 
               <span className="font-bold text-sm">
-                {room.players.length}/{room.maxPlayers}
+                {roomData.players.length}/{roomData.maxPlayers}
               </span>
             </div>
 
             <div className="space-y-2">
-              {room.players.map((player, index) => (
+              {roomData.players.map((player, index) => (
                 <div
                   key={index}
                   className="bg-white rounded-xl border px-3 py-2 flex items-center justify-between"
