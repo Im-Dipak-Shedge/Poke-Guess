@@ -28,6 +28,22 @@ export default function Lobby() {
 
   const { isHost, trainerName } = state;
 
+  // useEffect(() => {
+  //   socket.on("room-updated", (updatedRoom) => {
+  //     setRoomData(updatedRoom);
+  //   });
+
+  //   socket.on("room-closed", () => {
+  //     alert("Host left the room.");
+  //     navigate("/");
+  //   });
+
+  //   return () => {
+  //     socket.off("room-updated");
+  //     socket.off("room-closed");
+  //   };
+  // }, []);
+
   useEffect(() => {
     socket.on("room-updated", (updatedRoom) => {
       setRoomData(updatedRoom);
@@ -38,11 +54,23 @@ export default function Lobby() {
       navigate("/");
     });
 
+    socket.on("game-start", (gameData) => {
+      navigate(`/game/${roomData.roomCode}`, {
+        state: {
+          room: roomData,
+          trainerName,
+          isHost,
+          gameData,
+        },
+      });
+    });
+
     return () => {
       socket.off("room-updated");
       socket.off("room-closed");
+      socket.off("game-start");
     };
-  }, []);
+  }, [navigate, roomData, trainerName, isHost]);
 
   useEffect(() => {
     if (!roomData) return;
@@ -209,7 +237,14 @@ export default function Lobby() {
           {/* Bottom */}
 
           {isHost ? (
-            <button className="w-full mb-3 bg-gradient-to-b from-green-400 to-green-500 text-white font-bold rounded-full py-3 flex items-center justify-center gap-2 border-2 border-green-700 shadow-[0_5px_0_#1F6B37] active:translate-y-1 active:shadow-none">
+            <button
+              onClick={() => {
+                socket.emit("start-game", {
+                  roomCode: roomData.roomCode,
+                });
+              }}
+              className="w-full mb-3 bg-gradient-to-b from-green-400 to-green-500 text-white font-bold rounded-full py-3 flex items-center justify-center gap-2 border-2 border-green-700 shadow-[0_5px_0_#1F6B37] active:translate-y-1 active:shadow-none"
+            >
               <Play size={18} />
               START GAME
             </button>
@@ -227,7 +262,13 @@ export default function Lobby() {
             className="w-full bg-red-500 text-white font-bold rounded-full py-3 flex items-center justify-center gap-2"
           >
             <LogOut size={18} />
-            Leave Room
+            {/*  Depending on whether the user is the host or not, display "Close
+            Room" or "Leave Room" */}
+            {isHost ? (
+              <span className="ml-2">Close Room</span>
+            ) : (
+              <span className="ml-2">Leave Room</span>
+            )}
           </button>
 
           <div className="flex justify-center mt-5">

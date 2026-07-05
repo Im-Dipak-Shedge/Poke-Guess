@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Lobby from "./pages/Lobby";
+import Game from "./pages/Game";
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/room/:roomId" element={<Lobby />} />
+        <Route path="/game/:roomId" element={<Game />} />
       </Routes>
     </BrowserRouter>
   );

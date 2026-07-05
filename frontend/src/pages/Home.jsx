@@ -24,6 +24,18 @@ const trainers = [
   {
     img: "/avatars/trainer6.png",
   },
+  {
+    img: "/avatars/trainer7.png",
+  },
+  {
+    img: "/avatars/trainer8.png",
+  },
+  {
+    img: "/avatars/trainer9.png",
+  },
+  {
+    img: "/avatars/trainer10.png",
+  },
 ];
 
 export default function Home() {
