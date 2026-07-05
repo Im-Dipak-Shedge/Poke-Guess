@@ -4,16 +4,7 @@ export default function PokemonCard({ src, revealed = false, messages = [] }) {
   const recent = messages.slice(-4);
 
   return (
-    <div
-      className="relative w-full shrink-0 flex items-center justify-center"
-      style={{
-        height: "30vh",
-        minHeight: "170px",
-        maxHeight: "240px",
-        background: "linear-gradient(180deg, #FFFDF6 0%, #FBF2D6 100%)",
-        borderBottom: "3px solid #2B2340",
-      }}
-    >
+    <div className="relative w-full shrink-0 lg:border-0 border-b-2 flex items-center bg-[#ffffff] justify-center h-[35%] lg:h-[85%] lg:rounded-bl-xl">
       {src ? (
         <img
           src={src}

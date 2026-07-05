@@ -1,13 +1,6 @@
 import React from "react";
 import { Settings } from "lucide-react";
-import Pokeball from "./Pokeball";
 
-/**
- * GameHeader
- * Compact top bar: timer + round stacked in one column on the left, word
- * blanks centered, settings on the right. Kept short so mobile keeps most
- * of the screen for the Pokemon card below.
- */
 export default function GameHeader({
   round = 1,
   totalRounds = 3,
@@ -31,22 +24,24 @@ export default function GameHeader({
       }}
     >
       {/* Timer + round, stacked as one column */}
-      <div className="flex flex-col items-center shrink-0 w-14">
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center relative shrink-0"
-          style={{
-            background: "linear-gradient(180deg, #FFFDF6 0%, #FBF2D6 100%)",
-            border: "2px solid #2B2340",
-          }}
-        >
-          <Pokeball className="w-3.5 h-3.5" />
-          <span className="absolute -bottom-1 -right-1 bg-yellow-400 text-[#7A131B] text-[8px] font-bold rounded-full min-w-[14px] h-3.5 px-0.5 flex items-center justify-center border border-white">
+      <div className="flex flex-col items-center shrink-0">
+        <div className="relative flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center">
+          <div className="absolute inset-[5px] rounded-full bg-[#FFFDF7] border-2 border-black" />
+
+          {/* Timer */}
+          <span
+            className={`relative z-10 text-sm sm:text-lg font-extrabold leading-none tabular-nums ${
+              timeLeft <= 15 ? "text-red-600 animate-pulse" : "text-[#2B2340]"
+            }`}
+            style={{ fontFamily: "'Fredoka', sans-serif" }}
+          >
             {timeLeft}
           </span>
         </div>
+
         <span
-          className="text-white/90 text-[9px] font-semibold whitespace-nowrap mt-0.5"
-          style={{ textShadow: "0 1px 0 rgba(0,0,0,0.2)" }}
+          className="mt-1 text-[10px] sm:text-xs font-bold text-white"
+          style={{ fontFamily: "'Fredoka', sans-serif" }}
         >
           Round {round}/{totalRounds}
         </span>
@@ -61,7 +56,6 @@ export default function GameHeader({
           {blanks || "----"}
         </span>
       </div>
-
       <button
         onClick={onSettingsClick}
         aria-label="Settings"

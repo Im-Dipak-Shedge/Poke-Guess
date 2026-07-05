@@ -124,12 +124,16 @@ export default function Game() {
 
   return (
     <div
-      className="h-screen overflow-hidden bg-[#3d67c7] bg-[url('/backgrounds/pokemon-pattern.png')] bg-repeat p-2 lg:p-3"
-      style={{ fontFamily: "'Fredoka', sans-serif" }}
+      className=" h-screen overflow-hidden  bg-repeat lg:px-10 lg:py-4 "
+      style={{
+        background:
+          "linear-gradient(180deg, #4A78D8 0%, #6B9AE8 32%, #BFE3F2 48%, #6FBE6A 52%, #3E9346 78%, #2C7236 100%)",
+        fontFamily: "'Fredoka', sans-serif",
+      }}
     >
       {/* ======================= DESKTOP ======================= */}
 
-      <div className="hidden lg:flex h-full flex-col rounded-xl overflow-hidden shadow-2xl">
+      <div className="hidden lg:flex h-full flex-col rounded-xl overflow-hidden ">
         <GameHeader
           round={2}
           totalRounds={3}
@@ -149,6 +153,7 @@ export default function Game() {
               border-r-4
               border-[#244896]
               overflow-hidden
+              lg:rounded-bl-md
             "
           >
             <PlayerList players={players} />
@@ -156,30 +161,31 @@ export default function Game() {
 
           {/* CENTER */}
 
-          <main className="flex flex-1 flex-col bg-white">
+          <main className="flex flex-1 flex-col overflow-hidden md:">
             <div className="flex-1 overflow-hidden">
               <PokemonCard src={null} revealed={false} messages={messages} />
             </div>
-
-            <GuessInput
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              onSubmit={submitGuess}
-            />
           </main>
-
           {/* CHAT */}
 
           <aside
             className="
               w-[355px]
+              lg:h-[85%]
               bg-white
               border-l-4
               border-[#244896]
               overflow-hidden
+              lg:rounded-br-xl
+
             "
           >
             <ChatBox messages={messages} />
+            <GuessInput
+              value={guess}
+              onChange={(e) => setGuess(e.target.value)}
+              onSubmit={submitGuess}
+            />
           </aside>
         </div>
       </div>

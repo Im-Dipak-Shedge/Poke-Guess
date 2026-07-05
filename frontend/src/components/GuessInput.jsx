@@ -9,7 +9,7 @@ export default function GuessInput({ value, onChange, onSubmit }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full shrink-0 px-2 py-2 flex items-center gap-2"
+      className="w-full shrink-0 px-2 py-2  lg:rounded-br-lg flex items-center gap-2"
       style={{
         background:
           "linear-gradient(180deg, #F1464F 0%, #D42832 55%, #B8202A 100%)",

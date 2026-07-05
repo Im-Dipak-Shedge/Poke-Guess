@@ -15,12 +15,12 @@ export default function PlayerList({ players = [] }) {
       {players.map((p) => (
         <div
           key={p.id}
-          className={`flex-1 min-h-[44px] flex items-center gap-2 px-2 border-b border-[#2B2340]/10 ${
+          className={`flex-1 min-h-[44px] flex  items-center gap-2 px-2 border-b border-[#2B2340]/10 ${
             p.isCorrect ? "bg-green-400" : p.isYou ? "bg-red-100" : ""
           }`}
         >
           <span
-            className="text-[11px] font-bold w-6 shrink-0"
+            className="text-[11px] lg:text-[14px] font-bold w-6 shrink-0"
             style={{
               fontFamily: "'Fredoka', sans-serif",
               color: p.isCorrect ? "#0F3D1C" : "rgba(43,35,64,0.7)",
@@ -31,7 +31,7 @@ export default function PlayerList({ players = [] }) {
 
           <div className="flex flex-col leading-tight flex-1 min-w-0">
             <span
-              className={`text-[11px] font-semibold truncate ${
+              className={`text-[11px] lg:text-[14px] font-semibold truncate ${
                 p.isCorrect
                   ? "text-[#0F3D1C]"
                   : p.isYou
@@ -44,7 +44,7 @@ export default function PlayerList({ players = [] }) {
               {p.isYou ? " (You)" : ""}
             </span>
             <span
-              className={`text-[10px] font-medium ${
+              className={`text-[10px] lg:text-[12px] font-medium ${
                 p.isCorrect ? "text-[#0F3D1C]/80" : "text-[#2B2340]/60"
               }`}
             >
@@ -74,7 +74,7 @@ export default function PlayerList({ players = [] }) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-white text-[10px] font-bold">
+              <span className="text-white text-[10px] lg:text-[12px] font-bold">
                 {p.name?.[0]?.toUpperCase()}
               </span>
             )}
