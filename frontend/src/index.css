@@ -23,3 +23,36 @@
 @theme {
     --animate-spin-slow: spin 6s linear infinite;
 }
+
+/* round */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes spinSlow {
+    from {
+        transform: rotate(0deg) scale(0.8);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    to {
+        transform: rotate(360deg) scale(0.8);
+    }
+}
+
+.animate-spin-slow {
+    animation: spinSlow 1.6s linear infinite;
+}

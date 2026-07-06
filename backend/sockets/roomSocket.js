@@ -349,5 +349,18 @@ export default function roomSocket(io) {
             }
         });
 
+
+        //round
+        socket.on("round-started", (data) => {
+            setRound(data.round);
+            setTotalRounds(data.totalRounds);
+            setTimeLeft(data.timeLeft);
+
+            setShowRoundAnimation(true);
+
+            setTimeout(() => {
+                setShowRoundAnimation(false);
+            }, 3000);
+        });
     });
 }

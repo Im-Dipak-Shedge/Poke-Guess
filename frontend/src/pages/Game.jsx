@@ -33,8 +33,8 @@ export default function Game() {
   const [guess, setGuess] = useState("");
   const [messages, setMessages] = useState(mockMessages);
   const [timeLeft, setTimeLeft] = useState(state?.gameData?.timeLeft || 80);
-
   const [round, setRound] = useState(state?.gameData?.round || 1);
+  const [showRoundAnimation, setShowRoundAnimation] = useState(true);
 
   const [totalRounds, setTotalRounds] = useState(
     state?.gameData?.totalRounds || 1,
@@ -42,6 +42,12 @@ export default function Game() {
 
   const [players, setPlayers] = useState(state?.room?.players || []);
 
+  //round animation timeout
+  useEffect(() => {
+    setTimeout(() => {
+      setShowRoundAnimation(false);
+    }, 3000);
+  }, []);
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -147,7 +153,13 @@ export default function Game() {
 
           <main className="flex flex-1 flex-col overflow-hidden md:">
             <div className="flex-1 overflow-hidden">
-              <PokemonCard src={null} revealed={false} messages={messages} />
+              <PokemonCard
+                // src={pokemonImage}
+                // revealed={revealed}
+                messages={messages}
+                round={round}
+                showRoundAnimation={showRoundAnimation}
+              />
             </div>
           </main>
           {/* CHAT */}
@@ -183,7 +195,13 @@ export default function Game() {
           revealedLetters={[]}
         />
 
-        <PokemonCard src={null} revealed={false} messages={messages} />
+        <PokemonCard
+          // src={pokemonImage}
+          // revealed={revealed}
+          messages={messages}
+          round={round}
+          showRoundAnimation={showRoundAnimation}
+        />
 
         <div className="flex flex-1 min-h-0">
           <div className="w-1/2 border-r border-black/10 bg-white">
