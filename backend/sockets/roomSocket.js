@@ -2,30 +2,56 @@ import Room from "../models/Room.js";
 
 export default function roomSocket(io) {
     io.on("connection", (socket) => {
+        // socket.on("join-room", async ({ roomCode, trainerName }) => {
+
+        //     socket.join(roomCode);
+
+        //     const room = await Room.findOne({ roomCode });
+
+        //     if (!room) return;
+
+        //     const player = room.players.find(
+        //         p => p.trainerName === trainerName
+        //     );
+
+
+        //     if (player) {
+        //         player.socketId = socket.id;
+        //         await room.save();
+        //         console.log(`${trainerName} -> ${socket.id}`);
+        //     }
+
+        //     io.to(roomCode).emit("room-updated", room);
+        // });
 
 
         socket.on("join-room", async ({ roomCode, trainerName }) => {
-
-            socket.join(roomCode);
-
             const room = await Room.findOne({ roomCode });
 
-            if (!room) return;
+            if (!room) {
+                socket.emit("join-error", "Room not found.");
+                return;
+            }
+
+            // Prevent joining after game has started
+            if (room.status !== "waiting") {
+                socket.emit("join-error", "Game has already started.");
+                return;
+            }
+
+            socket.join(roomCode);
 
             const player = room.players.find(
                 p => p.trainerName === trainerName
             );
 
-
             if (player) {
                 player.socketId = socket.id;
                 await room.save();
-                console.log(`${trainerName} -> ${socket.id}`);
             }
 
             io.to(roomCode).emit("room-updated", room);
         });
-
         socket.on("disconnect", async () => {
             try {
                 console.log(`Socket disconnection event`);

@@ -82,6 +82,12 @@ export const joinRoom = async (req, res) => {
             });
         }
 
+        if (room.status !== "waiting") {
+            return res.status(403).json({
+                message: "Game has already started."
+            });
+        }
+
         room.players.push({
             trainerName,
             trainerAvatar,

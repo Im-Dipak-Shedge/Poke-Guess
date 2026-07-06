@@ -4,59 +4,8 @@ import PokemonCard from "../components/PokemonCard";
 import PlayerList from "../components/PlayerList";
 import ChatBox from "../components/ChatBox";
 import GuessInput from "../components/GuessInput";
-
-const mockPlayers = [
-  {
-    id: 1,
-    rank: 1,
-    name: "Ash",
-    points: 2285,
-    avatarColor: "#FF6B6B",
-  },
-  {
-    id: 2,
-    rank: 2,
-    name: "Misty",
-    points: 1890,
-    avatarColor: "#4ECDC4",
-  },
-  {
-    id: 3,
-    rank: 3,
-    name: "Brock",
-    points: 1650,
-    avatarColor: "#F7B267",
-  },
-  {
-    id: 4,
-    rank: 4,
-    name: "Jessie",
-    points: 1325,
-    avatarColor: "#C084FC",
-  },
-  {
-    id: 5,
-    rank: 5,
-    name: "James",
-    points: 840,
-    avatarColor: "#60A5FA",
-  },
-  {
-    id: 6,
-    rank: 6,
-    name: "Gary",
-    points: 350,
-    avatarColor: "#94A3B8",
-  },
-  {
-    id: 7,
-    rank: 7,
-    name: "Rohan",
-    points: 0,
-    avatarColor: "#A855F7",
-    isYou: true,
-  },
-];
+import { useLocation } from "react-router-dom";
+import socket from "../socket";
 
 const mockMessages = [
   {
@@ -81,9 +30,11 @@ const mockMessages = [
 
 export default function Game() {
   const [guess, setGuess] = useState("");
-  const [players] = useState(mockPlayers);
   const [messages, setMessages] = useState(mockMessages);
   const [timeLeft, setTimeLeft] = useState(78);
+  const { state } = useLocation();
+
+  const [players, setPlayers] = useState(state?.room?.players || []);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -94,6 +45,17 @@ export default function Game() {
     document.head.appendChild(link);
 
     return () => document.head.removeChild(link);
+  }, []);
+
+  //playerlist
+  useEffect(() => {
+    socket.on("room-updated", (updatedRoom) => {
+      setPlayers(updatedRoom.players);
+    });
+
+    return () => {
+      socket.off("room-updated");
+    };
   }, []);
 
   useEffect(() => {
@@ -176,9 +138,7 @@ export default function Game() {
               border-l-4
               border-[#244896]
               overflow-hidden
-              lg:rounded-br-xl
-
-            "
+              lg:rounded-br-xl"
           >
             <ChatBox messages={messages} />
             <GuessInput

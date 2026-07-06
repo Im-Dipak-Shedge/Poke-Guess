@@ -45,6 +45,17 @@ export default function Lobby() {
   // }, []);
 
   useEffect(() => {
+    socket.on("join-error", (message) => {
+      alert(message);
+      navigate("/");
+    });
+
+    return () => {
+      socket.off("join-error");
+    };
+  }, [navigate]);
+
+  useEffect(() => {
     socket.on("room-updated", (updatedRoom) => {
       setRoomData(updatedRoom);
     });

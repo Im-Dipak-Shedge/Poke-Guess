@@ -1,10 +1,7 @@
 import React from "react";
 import Pokeball from "./Pokeball";
 
-/**
- * GuessInput
- * Fixed bar pinned to the bottom of the screen, in the PokeGuess red.
- */
+
 export default function GuessInput({ value, onChange, onSubmit }) {
   return (
     <form
