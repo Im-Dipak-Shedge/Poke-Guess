@@ -29,10 +29,16 @@ const mockMessages = [
 ];
 
 export default function Game() {
+  const { state } = useLocation();
   const [guess, setGuess] = useState("");
   const [messages, setMessages] = useState(mockMessages);
-  const [timeLeft, setTimeLeft] = useState(78);
-  const { state } = useLocation();
+  const [timeLeft, setTimeLeft] = useState(state?.gameData?.timeLeft || 80);
+
+  const [round, setRound] = useState(state?.gameData?.round || 1);
+
+  const [totalRounds, setTotalRounds] = useState(
+    state?.gameData?.totalRounds || 1,
+  );
 
   const [players, setPlayers] = useState(state?.room?.players || []);
 
@@ -58,12 +64,28 @@ export default function Game() {
     };
   }, []);
 
+  //timer
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((t) => (t > 0 ? t - 1 : 0));
-    }, 1000);
+    socket.on("round-started", (data) => {
+      setRound(data.round);
+      setTotalRounds(data.totalRounds);
+      setTimeLeft(data.timeLeft);
+    });
 
-    return () => clearInterval(interval);
+    socket.on("timer-update", (time) => {
+      setTimeLeft(time);
+    });
+
+    socket.on("game-finished", () => {
+      console.log("Game Finished");
+      // We'll navigate to the result screen later.
+    });
+
+    return () => {
+      socket.off("round-started");
+      socket.off("timer-update");
+      socket.off("game-finished");
+    };
   }, []);
 
   const submitGuess = (e) => {
@@ -97,8 +119,8 @@ export default function Game() {
 
       <div className="hidden lg:flex h-full flex-col rounded-xl overflow-hidden ">
         <GameHeader
-          round={2}
-          totalRounds={3}
+          round={round}
+          totalRounds={totalRounds}
           timeLeft={timeLeft}
           word="________"
           revealedLetters={[]}
@@ -118,7 +140,7 @@ export default function Game() {
               lg:rounded-bl-md
             "
           >
-            <PlayerList players={players} />
+            <PlayerList players={players} trainerName={state?.trainerName} />
           </aside>
 
           {/* CENTER */}
@@ -154,8 +176,8 @@ export default function Game() {
 
       <div className="flex lg:hidden flex-col h-full">
         <GameHeader
-          round={2}
-          totalRounds={3}
+          round={round}
+          totalRounds={totalRounds}
           timeLeft={timeLeft}
           word="________"
           revealedLetters={[]}
@@ -165,7 +187,7 @@ export default function Game() {
 
         <div className="flex flex-1 min-h-0">
           <div className="w-1/2 border-r border-black/10 bg-white">
-            <PlayerList players={players} />
+            <PlayerList players={players} trainerName={state?.trainerName} />
           </div>
 
           <div className="w-1/2 bg-white">

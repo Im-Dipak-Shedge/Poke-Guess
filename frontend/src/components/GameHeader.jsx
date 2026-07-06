@@ -16,7 +16,7 @@ export default function GameHeader({
 
   return (
     <div
-      className="w-full flex items-center justify-between gap-2 px-2 py-1.5 shrink-0"
+      className="w-full flex items-center justify-between gap-2 lg:px-5 px-2 py-1.5 shrink-0"
       style={{
         background:
           "linear-gradient(180deg, #F1464F 0%, #D42832 55%, #B8202A 100%)",
