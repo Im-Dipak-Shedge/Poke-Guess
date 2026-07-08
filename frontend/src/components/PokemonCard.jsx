@@ -82,13 +82,12 @@ export default function PokemonCard({
             alt={revealed ? "Pokemon" : "Who's that Pokémon?"}
             draggable={false}
             className="
-        h-full
-        w-auto
-         max-h-[100%]
-    lg:max-h-[85%]
-     
-        object-contain
-        select-none
+            h-full
+            w-auto
+            max-h-[100%]
+            lg:max-h-[85%]
+            object-contain
+            select-none
       "
             style={revealed ? {} : { filter: "brightness(0)" }}
           />

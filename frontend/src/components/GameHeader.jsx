@@ -2,18 +2,22 @@ import React from "react";
 import { Settings } from "lucide-react";
 
 export default function GameHeader({
-  round = 1,
-  totalRounds = 3,
-  timeLeft = 60,
-  word = "",
-  revealedLetters = [],
+  round,
+  totalRounds,
+  timeLeft,
+  word,
+  revealedLetters,
   onSettingsClick,
 }) {
   const blanks = word
     .split("")
-    .map((ch, i) => (ch === " " ? " " : revealedLetters[i] || "_"))
-    .join(" ");
+    .map((ch, i) => {
+      if (ch === " ") return " ";
+      if (ch === "-") return "-";
 
+      return revealedLetters.includes(i) ? ch.toUpperCase() : "_";
+    })
+    .join(" ");
   return (
     <div
       className="w-full flex items-center justify-between gap-2 lg:px-5 px-2 py-1.5 shrink-0"
@@ -48,10 +52,22 @@ export default function GameHeader({
       </div>
 
       {/* Word blanks, centered and compact */}
-      <div className="flex flex-col items-center flex-1 min-w-0">
+      <div className="flex flex-1 justify-center items-center px-2 overflow-hidden">
         <span
-          className="text-yellow-300 text-sm font-bold tracking-[0.2em] truncate max-w-full"
-          style={{ textShadow: "0 2px 0 rgba(0,0,0,0.25)" }}
+          className="
+      text-yellow-300
+      font-black
+      text-sm
+      lg:text-xl
+      tracking-[0.08em]
+      lg:tracking-[0.18em]
+      text-center
+      whitespace-nowrap
+    "
+          style={{
+            textShadow: "0 2px 0 rgba(0,0,0,.25)",
+            fontFamily: "'Fredoka', sans-serif",
+          }}
         >
           {blanks || "----"}
         </span>

@@ -13,12 +13,38 @@ function startRound(io, room) {
 
     const currentPokemon = game.currentPokemon;
 
+    game.revealedLetters = [];
+
     // Safety: remove any existing timer
     if (gameTimers[room.roomCode]) {
         clearInterval(gameTimers[room.roomCode]);
     }
 
-    let timeLeft = 10;
+    let timeLeft = 82;
+
+    //hint interval
+    const hintInterval = setInterval(() => {
+        const hiddenIndexes = [];
+
+        currentPokemon.name.split("").forEach((ch, i) => {
+            if (
+                ch !== " " &&
+                ch !== "-" &&
+                !game.revealedLetters.includes(i)
+            ) {
+                hiddenIndexes.push(i);
+            }
+        });
+
+        if (hiddenIndexes.length === 0) return;
+
+        game.revealedLetters.push(hiddenIndexes[0]);
+
+        io.to(room.roomCode).emit("hint-update", {
+            revealedLetters: game.revealedLetters,
+        });
+
+    }, 20 * 1000); // reveal every 20 sec for testing
 
     io.to(room.roomCode).emit("round-started", {
         round: room.currentRound,
@@ -26,6 +52,10 @@ function startRound(io, room) {
         timeLeft,
         artwork: currentPokemon.artwork,
         types: currentPokemon.types,
+
+        // NEW
+        pokemonName: currentPokemon.name,
+        revealedLetters: [],
     });
 
     gameTimers[room.roomCode] = setInterval(async () => {
@@ -36,6 +66,8 @@ function startRound(io, room) {
         if (timeLeft <= 0) {
             clearInterval(gameTimers[room.roomCode]);
             delete gameTimers[room.roomCode];
+
+            clearInterval(hintInterval);
 
             room.currentRound++;
 
@@ -159,6 +191,7 @@ export default function roomSocket(io) {
                     revealedLetters: [],
                     guessedPlayers: [],
                     currentPokemon: null,
+                    guessOrder: 0,
                 };
 
                 room.status = "playing";

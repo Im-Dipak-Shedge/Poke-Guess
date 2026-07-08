@@ -37,6 +37,8 @@ export default function Game() {
   const [showRoundAnimation, setShowRoundAnimation] = useState(true);
   const [pokemonArtwork, setPokemonArtwork] = useState("");
   const [pokemonTypes, setPokemonTypes] = useState([]);
+  const [pokemonName, setPokemonName] = useState("");
+  const [revealedLetters, setRevealedLetters] = useState([]);
 
   const [totalRounds, setTotalRounds] = useState(
     state?.gameData?.totalRounds || 1,
@@ -76,6 +78,9 @@ export default function Game() {
       setPokemonArtwork(data.artwork);
       setPokemonTypes(data.types);
 
+      setPokemonName(data.pokemonName);
+      setRevealedLetters(data.revealedLetters);
+
       setShowRoundAnimation(true);
 
       setTimeout(() => {
@@ -92,10 +97,15 @@ export default function Game() {
       // We'll navigate to the result screen later.
     });
 
+    socket.on("hint-update", (data) => {
+      setRevealedLetters(data.revealedLetters);
+    });
+
     return () => {
       socket.off("round-started");
       socket.off("timer-update");
       socket.off("game-finished");
+      socket.off("hint-update");
     };
   }, []);
 
@@ -133,8 +143,8 @@ export default function Game() {
           round={round}
           totalRounds={totalRounds}
           timeLeft={timeLeft}
-          word="________"
-          revealedLetters={[]}
+          word={pokemonName}
+          revealedLetters={revealedLetters}
         />
 
         <div className="flex flex-1 overflow-hidden">
@@ -197,8 +207,8 @@ export default function Game() {
           round={round}
           totalRounds={totalRounds}
           timeLeft={timeLeft}
-          word="________"
-          revealedLetters={[]}
+          word={pokemonName}
+          revealedLetters={revealedLetters}
         />
         <PokemonCard
           src={pokemonArtwork}
