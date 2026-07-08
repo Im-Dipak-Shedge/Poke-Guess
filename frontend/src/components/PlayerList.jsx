@@ -12,7 +12,7 @@ export default function PlayerList({ players = [], trainerName }) {
     <div className="h-full w-full flex flex-col overflow-y-auto">
       {rankedPlayers.map((p) => (
         <div
-          key={p.id}
+          key={p.trainerName}
           className={`h-16 lg:h-18 flex items-center gap-2 px-2 lg:px-4 border-b border-[#2B2340]/20 ${
             p.isCorrect ? "bg-green-400" : p.isYou ? "bg-red-100" : ""
           }`}

@@ -7,11 +7,32 @@ export default function PokemonCard({
   messages = [],
   round,
   showRoundAnimation,
+  types = [],
 }) {
   const recent = messages.slice(-4);
 
+  const typeColors = {
+    normal: "bg-[#A8A77A] text-white",
+    fire: "bg-[#EE8130] text-white",
+    water: "bg-[#6390F0] text-white",
+    electric: "bg-[#F7D02C] text-[#3A2E00]",
+    grass: "bg-[#7AC74C] text-white",
+    ice: "bg-[#96D9D6] text-[#184A45]",
+    fighting: "bg-[#C22E28] text-white",
+    poison: "bg-[#A33EA1] text-white",
+    ground: "bg-[#E2BF65] text-[#5A3D00]",
+    flying: "bg-[#A98FF3] text-white",
+    psychic: "bg-[#F95587] text-white",
+    bug: "bg-[#A6B91A] text-white",
+    rock: "bg-[#B6A136] text-white",
+    ghost: "bg-[#735797] text-white",
+    dragon: "bg-[#6F35FC] text-white",
+    dark: "bg-[#705746] text-white",
+    steel: "bg-[#B7B7CE] text-[#2B2B2B]",
+    fairy: "bg-[#D685AD] text-white",
+  };
+
   return (
-    // < className="relative w-full shrink-0 lg:border-0 border-b-2 flex items-center bg-[#ffffff] justify-center h-[35%] lg:h-[85%] lg:rounded-bl-xl">
     <div
       className="
     relative
@@ -20,12 +41,10 @@ export default function PokemonCard({
     lg:h-[85%]
     shrink-0
     flex
-    items-center
-    justify-center
+    flex-col
     overflow-hidden
     lg:rounded-bl-xl
     border
-    
   "
       style={{
         background:
@@ -55,17 +74,59 @@ export default function PokemonCard({
         }}
       />
 
-      {/* Your existing content goes here */}
-      {src ? (
-        <img
-          src={src}
-          alt={revealed ? "Pokemon" : "Who's that Pokemon?"}
-          draggable={false}
-          className="max-h-full max-w-full object-contain select-none"
-          style={revealed ? undefined : { filter: "brightness(0)" }}
-        />
-      ) : (
-        <span></span>
+      {/* pokemon image */}
+      <div className="flex-[6] flex items-center justify-center overflow-hidden px-4">
+        {!showRoundAnimation && src && (
+          <img
+            src={src}
+            alt={revealed ? "Pokemon" : "Who's that Pokémon?"}
+            draggable={false}
+            className="
+        h-full
+        w-auto
+         max-h-[100%]
+    lg:max-h-[85%]
+     
+        object-contain
+        select-none
+      "
+            style={revealed ? {} : { filter: "brightness(0)" }}
+          />
+        )}
+      </div>
+
+      {/* Pokémon Types */}
+      {!showRoundAnimation && (
+        <div
+          className="
+    flex-[1]
+    flex
+    items-center
+    justify-center
+    gap-2
+    px-2
+    pb-4
+  "
+        >
+          {types.map((type) => (
+            <span
+              key={type}
+              className={`
+          px-4 py-1.5
+          rounded-full
+          text-xs lg:text-sm
+          font-extrabold
+          uppercase
+          tracking-wide
+          border-2 border-white/60
+          shadow-lg
+          ${typeColors[type] || "bg-gray-500 text-white"}
+        `}
+            >
+              {type}
+            </span>
+          ))}
+        </div>
       )}
 
       {showRoundAnimation && (
@@ -73,7 +134,7 @@ export default function PokemonCard({
           <Pokeball className="w-28 h-28 animate-spin-slow" />
 
           <h2
-            className="mt-6 text-5xl font-black text-yellow-300"
+            className="mt-6 text-4xl lg:text-5xl font-black text-yellow-300"
             style={{
               WebkitTextStroke: "2px #1C2F80",
               fontFamily: "'Fredoka', sans-serif",

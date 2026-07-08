@@ -32,9 +32,11 @@ export default function Game() {
   const { state } = useLocation();
   const [guess, setGuess] = useState("");
   const [messages, setMessages] = useState(mockMessages);
-  const [timeLeft, setTimeLeft] = useState(state?.gameData?.timeLeft || 80);
+  const [timeLeft, setTimeLeft] = useState(state?.gameData?.timeLeft || 10);
   const [round, setRound] = useState(state?.gameData?.round || 1);
   const [showRoundAnimation, setShowRoundAnimation] = useState(true);
+  const [pokemonArtwork, setPokemonArtwork] = useState("");
+  const [pokemonTypes, setPokemonTypes] = useState([]);
 
   const [totalRounds, setTotalRounds] = useState(
     state?.gameData?.totalRounds || 1,
@@ -42,12 +44,6 @@ export default function Game() {
 
   const [players, setPlayers] = useState(state?.room?.players || []);
 
-  //round animation timeout
-  useEffect(() => {
-    setTimeout(() => {
-      setShowRoundAnimation(false);
-    }, 3000);
-  }, []);
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -76,6 +72,15 @@ export default function Game() {
       setRound(data.round);
       setTotalRounds(data.totalRounds);
       setTimeLeft(data.timeLeft);
+
+      setPokemonArtwork(data.artwork);
+      setPokemonTypes(data.types);
+
+      setShowRoundAnimation(true);
+
+      setTimeout(() => {
+        setShowRoundAnimation(false);
+      }, 2000);
     });
 
     socket.on("timer-update", (time) => {
@@ -154,11 +159,12 @@ export default function Game() {
           <main className="flex flex-1 flex-col overflow-hidden md:">
             <div className="flex-1 overflow-hidden">
               <PokemonCard
-                // src={pokemonImage}
-                // revealed={revealed}
+                src={pokemonArtwork}
+                revealed={false}
                 messages={messages}
                 round={round}
                 showRoundAnimation={showRoundAnimation}
+                types={pokemonTypes}
               />
             </div>
           </main>
@@ -194,13 +200,13 @@ export default function Game() {
           word="________"
           revealedLetters={[]}
         />
-
         <PokemonCard
-          // src={pokemonImage}
-          // revealed={revealed}
+          src={pokemonArtwork}
+          revealed={false}
           messages={messages}
           round={round}
           showRoundAnimation={showRoundAnimation}
+          types={pokemonTypes}
         />
 
         <div className="flex flex-1 min-h-0">

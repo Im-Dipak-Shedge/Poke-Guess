@@ -69,12 +69,6 @@ const roomSchema = new mongoose.Schema(
             type: Number,
             default: 6,
         },
-
-        createdAt: {
-            type: Date,
-            default: Date.now,
-            expires: 3600, // Auto delete room after 1 hour
-        },
         currentRound: {
             type: Number,
             default: 1,
