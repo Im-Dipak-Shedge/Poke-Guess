@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import GameHeader from "../components/GameHeader";
 import PokemonCard from "../components/PokemonCard";
 import PlayerList from "../components/PlayerList";
@@ -7,31 +7,10 @@ import GuessInput from "../components/GuessInput";
 import { useLocation } from "react-router-dom";
 import socket from "../socket";
 
-const mockMessages = [
-  {
-    id: 1,
-    type: "drawing",
-    name: "Ash",
-    text: "is choosing a Pokémon...",
-  },
-  {
-    id: 2,
-    type: "guess",
-    name: "Misty",
-    text: "Pikachu",
-  },
-  {
-    id: 3,
-    type: "guess",
-    name: "Gary",
-    text: "Raichu",
-  },
-];
-
 export default function Game() {
   const { state } = useLocation();
   const [guess, setGuess] = useState("");
-  const [messages, setMessages] = useState(mockMessages);
+  const [messages, setMessages] = useState([]);
   const [timeLeft, setTimeLeft] = useState(state?.gameData?.timeLeft || 10);
   const [round, setRound] = useState(state?.gameData?.round || 1);
   const [showRoundAnimation, setShowRoundAnimation] = useState(true);
@@ -39,12 +18,15 @@ export default function Game() {
   const [pokemonTypes, setPokemonTypes] = useState([]);
   const [pokemonName, setPokemonName] = useState("");
   const [revealedLetters, setRevealedLetters] = useState([]);
-
+  const [revealed, setRevealed] = useState(false);
+  const revealedRef = useRef(false);
   const [totalRounds, setTotalRounds] = useState(
     state?.gameData?.totalRounds || 1,
   );
-
+  const [showScoreboard, setShowScoreboard] = useState(false);
+  const [roundScores, setRoundScores] = useState([]);
   const [players, setPlayers] = useState(state?.room?.players || []);
+  const hasGuessedRef = useRef(false);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -71,6 +53,7 @@ export default function Game() {
   //timer
   useEffect(() => {
     socket.on("round-started", (data) => {
+      setShowScoreboard(false);
       setRound(data.round);
       setTotalRounds(data.totalRounds);
       setTimeLeft(data.timeLeft);
@@ -79,9 +62,16 @@ export default function Game() {
       setPokemonTypes(data.types);
 
       setPokemonName(data.pokemonName);
-      setRevealedLetters(data.revealedLetters);
+      setRevealedLetters([...data.revealedLetters]);
 
       setShowRoundAnimation(true);
+
+      setRevealed(false);
+      hasGuessedRef.current = false;
+      revealedRef.current = false;
+
+      setMessages([]);
+      // clears chat everyround
 
       setTimeout(() => {
         setShowRoundAnimation(false);
@@ -98,7 +88,65 @@ export default function Game() {
     });
 
     socket.on("hint-update", (data) => {
+      if (hasGuessedRef.current) return;
+
+      setRevealedLetters([...data.revealedLetters]);
+    });
+
+    socket.on("guess-message", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          type: "guess",
+          name: data.player,
+          text: data.guess,
+        },
+      ]);
+    });
+
+    socket.on("player-guessed", (data) => {
+      //tells everyone that someone guessed the pokemon
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          type: "system",
+          text: `${data.player} guessed correctly!`,
+        },
+      ]);
+    });
+
+    socket.on("correct-guess", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          type: "system",
+          text: "You guessed correctly!",
+        },
+      ]);
+
+      setPokemonArtwork(data.artwork);
+      setPokemonName(data.pokemonName); // <-- important
+      setRevealed(true);
+      hasGuessedRef.current = true;
       setRevealedLetters(data.revealedLetters);
+    });
+
+    socket.on("round-ended", (data) => {
+      setShowScoreboard(true);
+
+      setRoundScores(data.players);
+
+      setPokemonArtwork(data.pokemon.artwork);
+      setPokemonTypes(data.pokemon.types);
+
+      setRevealed(true);
+
+      setRevealedLetters(data.pokemon.name.split("").map((_, i) => i));
+
+      setTimeLeft(0);
     });
 
     return () => {
@@ -106,6 +154,10 @@ export default function Game() {
       socket.off("timer-update");
       socket.off("game-finished");
       socket.off("hint-update");
+      socket.off("guess-message");
+      socket.off("player-guessed");
+      socket.off("correct-guess");
+      socket.off("round-ended");
     };
   }, []);
 
@@ -114,15 +166,10 @@ export default function Game() {
 
     if (!guess.trim()) return;
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        type: "guess",
-        name: "You",
-        text: guess,
-      },
-    ]);
+    socket.emit("guess-pokemon", {
+      roomCode: state.room.roomCode,
+      guess,
+    });
 
     setGuess("");
   };
@@ -169,8 +216,11 @@ export default function Game() {
           <main className="flex flex-1 flex-col overflow-hidden md:">
             <div className="flex-1 overflow-hidden">
               <PokemonCard
+                pokemonName={pokemonName}
+                showScoreboard={showScoreboard}
+                roundScores={roundScores}
                 src={pokemonArtwork}
-                revealed={false}
+                revealed={revealed}
                 messages={messages}
                 round={round}
                 showRoundAnimation={showRoundAnimation}
@@ -188,7 +238,8 @@ export default function Game() {
               border-l-4
               border-[#244896]
               overflow-hidden
-              lg:rounded-br-xl"
+              lg:rounded-br-xl
+              "
           >
             <ChatBox messages={messages} />
             <GuessInput
@@ -211,8 +262,11 @@ export default function Game() {
           revealedLetters={revealedLetters}
         />
         <PokemonCard
+          pokemonName={pokemonName}
+          showScoreboard={showScoreboard}
+          roundScores={roundScores}
           src={pokemonArtwork}
-          revealed={false}
+          revealed={revealed}
           messages={messages}
           round={round}
           showRoundAnimation={showRoundAnimation}

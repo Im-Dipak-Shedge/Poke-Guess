@@ -9,6 +9,8 @@ export default function GameHeader({
   revealedLetters,
   onSettingsClick,
 }) {
+  console.log(word);
+
   const blanks = word
     .split("")
     .map((ch, i) => {

@@ -2,12 +2,15 @@ import React from "react";
 import Pokeball from "./Pokeball";
 
 export default function PokemonCard({
+  pokemonName,
   src,
   revealed = false,
   messages = [],
   round,
   showRoundAnimation,
   types = [],
+  showScoreboard,
+  roundScores,
 }) {
   const recent = messages.slice(-4);
 
@@ -128,6 +131,109 @@ export default function PokemonCard({
         </div>
       )}
 
+      {/* Scoreboard after round ends */}
+      {showScoreboard && (
+        <div
+          className="absolute inset-0 z-50 p-2 lg:p-4 overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(180deg,#6EC6FF 0%,#8FD8FF 35%,#BDEBFF 60%,#A7E07A 61%,#68C45A 100%)",
+          }}
+        >
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/25" />
+
+          {/* Content */}
+          <div className="relative z-10 flex flex-col h-full text-white">
+            {/* Title */}
+            <h2
+              className="text-center text-lg lg:text-3xl font-black text-yellow-300"
+              style={{
+                textShadow: "0 3px 8px rgba(0,0,0,.6)",
+              }}
+            >
+              ROUND COMPLETE
+            </h2>
+
+            {/* Body */}
+            <div className="flex flex-1 mt-2 gap-3 overflow-hidden">
+              {/* LEFT */}
+              <div className="w-[38%] lg:w-[40%] flex flex-col items-center justify-center">
+                <div className="bg-white rounded-full p-2 lg:p-3 shadow-xl">
+                  <img
+                    src={src}
+                    alt={pokemonName}
+                    className="w-16 h-16 lg:w-38 lg:h-38 object-contain"
+                  />
+                </div>
+
+                <h3
+                  className="mt-2 text-center text-xs lg:text-xl font-black uppercase break-words"
+                  style={{
+                    textShadow: "0 2px 6px rgba(0,0,0,.65)",
+                  }}
+                >
+                  {pokemonName}
+                </h3>
+              </div>
+
+              {/* RIGHT */}
+              <div className="flex-1 overflow-y-auto px-1">
+                {roundScores.map((player, index) => {
+                  const medals = ["🥇", "🥈", "🥉"];
+
+                  return (
+                    <div
+                      key={player.trainerName}
+                      className="flex items-center justify-between py-1 lg:py-2 border-b border-white/20"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm lg:text-xl">
+                          {medals[index] || "⭐"}
+                        </span>
+
+                        <span
+                          className="truncate text-[10px] lg:text-lg font-semibold lg:font-bold"
+                          style={{
+                            textShadow: "0 1px 3px rgba(0,0,0,.6)",
+                          }}
+                        >
+                          {player.trainerName}
+                        </span>
+                      </div>
+
+                      <span
+                        className="font-black text-yellow-200 text-sm lg:text-2xl shrink-0"
+                        style={{
+                          textShadow: "0 2px 5px rgba(0,0,0,.6)",
+                        }}
+                      >
+                        +{player.points}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-center items-center gap-2 pt-2">
+              <Pokeball className="w-4 h-4 lg:w-6 lg:h-6 animate-spin-slow" />
+
+              <span
+                className="text-[10px] lg:text-base font-bold text-yellow-100 animate-pulse"
+                style={{
+                  textShadow: "0 2px 5px rgba(0,0,0,.6)",
+                }}
+              >
+                Preparing Next Round...
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Round animation  */}
       {showRoundAnimation && (
         <div className="absolute inset-0 lg:pt-0 pt-10 z-50 flex flex-col items-center justify-center backdrop-blur-sm lg:rounded-bl-xl animate-fade">
           <Pokeball className="w-28 h-28 animate-spin-slow" />

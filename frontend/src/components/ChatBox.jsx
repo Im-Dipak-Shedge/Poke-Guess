@@ -1,13 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { LogIn, LogOut, Pencil } from "lucide-react";
 
-/**
- * ChatBox
- * Running activity/guess log. Sits in the bottom-right panel next to
- * PlayerList and always sticks to the newest message.
- *
- * messages: [{ id, type: 'drawing' | 'leave' | 'join' | 'system' | 'guess', text, name }]
- */
 const typeStyles = {
   drawing: { color: "text-blue-500", Icon: Pencil },
   leave: { color: "text-orange-500", Icon: LogOut },
@@ -24,7 +17,7 @@ export default function ChatBox({ messages = [] }) {
   }, [messages]);
 
   return (
-    <div className="h-full w-full flex flex-col gap-1 overflow-y-auto px-2 py-1.5">
+    <div className="h-full w-full lg:h-[89%] flex flex-col gap-1 overflow-y-auto px-2 py-1.5">
       {messages.map((m) => {
         const style = typeStyles[m.type] || typeStyles.system;
         const Icon = style.Icon;

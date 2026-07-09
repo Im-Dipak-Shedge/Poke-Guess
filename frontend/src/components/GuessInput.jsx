@@ -1,13 +1,7 @@
 import React from "react";
 import Pokeball from "./Pokeball";
 
-export default function GuessInput({
-  word,
-  revealedLetters,
-  value,
-  onChange,
-  onSubmit,
-}) {
+export default function GuessInput({ value, onChange, onSubmit }) {
   return (
     <form
       onSubmit={onSubmit}
