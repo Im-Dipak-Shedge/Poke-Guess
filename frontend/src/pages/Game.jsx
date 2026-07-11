@@ -28,6 +28,10 @@ export default function Game() {
   const [players, setPlayers] = useState(state?.room?.players || []);
   const hasGuessedRef = useRef(false);
 
+  const [showWinner, setShowWinner] = useState(false);
+  const [winner, setWinner] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
+
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -82,9 +86,14 @@ export default function Game() {
       setTimeLeft(time);
     });
 
-    socket.on("game-finished", () => {
-      console.log("Game Finished");
-      // We'll navigate to the result screen later.
+    socket.on("game-finished", (data) => {
+      setShowScoreboard(false);
+
+      setShowWinner(true);
+
+      setWinner(data.winner);
+
+      setLeaderboard(data.leaderboard);
     });
 
     socket.on("hint-update", (data) => {
@@ -216,6 +225,9 @@ export default function Game() {
           <main className="flex flex-1 flex-col overflow-hidden md:">
             <div className="flex-1 overflow-hidden">
               <PokemonCard
+                showWinner={showWinner}
+                winner={winner}
+                leaderboard={leaderboard}
                 pokemonName={pokemonName}
                 showScoreboard={showScoreboard}
                 roundScores={roundScores}
@@ -262,6 +274,9 @@ export default function Game() {
           revealedLetters={revealedLetters}
         />
         <PokemonCard
+          showWinner={showWinner}
+          winner={winner}
+          leaderboard={leaderboard}
           pokemonName={pokemonName}
           showScoreboard={showScoreboard}
           roundScores={roundScores}

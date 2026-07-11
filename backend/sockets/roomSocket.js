@@ -117,7 +117,7 @@ function startRound(io, room) {
         delete hintTimers[room.roomCode];
     }
 
-    let timeLeft = 82;
+    let timeLeft = 12;
 
     io.to(room.roomCode).emit("round-started", {
         round: room.currentRound,
@@ -182,7 +182,14 @@ function startRound(io, room) {
 
             delete activeGames[room.roomCode];
 
-            io.to(room.roomCode).emit("game-finished");
+            const leaderboard = [...room.players].sort(
+                (a, b) => b.score - a.score
+            );
+
+            io.to(room.roomCode).emit("game-finished", {
+                winner: leaderboard[0],
+                leaderboard,
+            });
 
             return;
         }
@@ -455,7 +462,14 @@ export default function roomSocket(io) {
 
                         delete activeGames[roomCode];
 
-                        io.to(roomCode).emit("game-finished");
+                        const leaderboard = [...room.players].sort(
+                            (a, b) => b.score - a.score
+                        );
+
+                        io.to(room.roomCode).emit("game-finished", {
+                            winner: leaderboard[0],
+                            leaderboard,
+                        });
 
                         return;
                     }
