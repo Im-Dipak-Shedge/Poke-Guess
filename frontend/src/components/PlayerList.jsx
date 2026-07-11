@@ -1,7 +1,11 @@
 import React from "react";
 import { Pencil } from "lucide-react";
 
-export default function PlayerList({ players = [], trainerName }) {
+export default function PlayerList({
+  players = [],
+  trainerName,
+  correctPlayers = [],
+}) {
   const rankedPlayers = [...players]
     .sort((a, b) => b.score - a.score)
     .map((player, index) => ({
@@ -13,15 +17,27 @@ export default function PlayerList({ players = [], trainerName }) {
       {rankedPlayers.map((p) => (
         <div
           key={p.trainerName}
-          className={`h-16 lg:h-18 flex items-center gap-2 px-2 lg:px-4 border-b border-[#2B2340]/20 ${
-            p.isCorrect ? "bg-green-400" : p.isYou ? "bg-red-100" : ""
-          }`}
+          className={`
+h-16 lg:h-18
+flex
+items-center
+gap-2
+px-2
+lg:px-4
+border-b
+border-[#2B2340]/20
+transition-colors
+
+${correctPlayers.includes(p.trainerName) ? "bg-[#67D95C]" : "bg-white"}
+`}
         >
           <span
             className="text-[12px] lg:text-[15px] font-bold w-6 shrink-0"
             style={{
               fontFamily: "'Fredoka', sans-serif",
-              color: p.isCorrect ? "#0F3D1C" : "rgba(43,35,64,0.7)",
+              color: correctPlayers.includes(p.trainerName)
+                ? "#084C12"
+                : "rgba(43,35,64,0.7)",
             }}
           >
             #{p.rank}
@@ -30,10 +46,10 @@ export default function PlayerList({ players = [], trainerName }) {
           <div className="flex flex-col leading-tight flex-1 min-w-0">
             <span
               className={`flex items-center gap-2 text-[11px] lg:text-[14px] font-semibold truncate ${
-                p.isCorrect
+                correctPlayers.includes(p.trainerName)
                   ? "text-[#0F3D1C]"
                   : p.trainerName === trainerName
-                    ? "text-green-600"
+                    ? "text-blue-500"
                     : "text-[#2B2340]"
               }`}
               style={{ fontFamily: "'Fredoka', sans-serif" }}
@@ -41,14 +57,16 @@ export default function PlayerList({ players = [], trainerName }) {
               {p.trainerName}
 
               {p.trainerName === trainerName && (
-                <span className="text-green-600 text-[10px] lg:text-xs font-bold">
+                <span className="text-blue-500 text-[10px] lg:text-xs font-bold">
                   (You)
                 </span>
               )}
             </span>
             <span
               className={`text-[10px] lg:text-[12px] font-medium ${
-                p.isCorrect ? "text-[#0F3D1C]/80" : "text-[#2B2340]/80"
+                correctPlayers.includes(p.trainerName)
+                  ? "text-[#084C12]"
+                  : "text-[#2B2340]/80"
               }`}
             >
               {p.score} points

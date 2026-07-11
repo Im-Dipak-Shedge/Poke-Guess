@@ -1,7 +1,15 @@
-import React from "react";
+import React, { useRef } from "react";
 import Pokeball from "./Pokeball";
 
 export default function GuessInput({ value, onChange, onSubmit }) {
+  const inputRef = useRef(null);
+
+  const handleFocus = () => {
+    inputRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
   return (
     <form
       onSubmit={onSubmit}
@@ -17,6 +25,8 @@ export default function GuessInput({ value, onChange, onSubmit }) {
           <Pokeball className="w-4 h-4" />
         </div>
         <input
+          ref={inputRef}
+          onFocus={handleFocus}
           type="text"
           value={value}
           onChange={onChange}

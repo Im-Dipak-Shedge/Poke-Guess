@@ -5,101 +5,16 @@ const activeGames = {};
 const gameTimers = {};
 const hintTimers = {};
 
-// function startRound(io, room) {
-//     const game = activeGames[room.roomCode];
-
-//     game.currentPokemon =
-//         game.roundPokemon[room.currentRound - 1];
-
-//     const currentPokemon = game.currentPokemon;
-
-//     game.revealedLetters = [];
-//     game.guessedPlayers = [];
-//     game.guessOrder = 0;
-
-//     // Safety: remove any existing timer
-//     if (gameTimers[room.roomCode]) {
-//         clearInterval(gameTimers[room.roomCode]);
-//     }
-
-//     let timeLeft = 82;
-
-//     //hint interval
-//     hintTimers[room.roomCode] = setInterval(() => {
-//         const hiddenIndexes = [];
-
-//         currentPokemon.name.split("").forEach((ch, i) => {
-//             if (
-//                 ch !== " " &&
-//                 ch !== "-" &&
-//                 !game.revealedLetters.includes(i)
-//             ) {
-//                 hiddenIndexes.push(i);
-//             }
-//         });
-
-//         if (hiddenIndexes.length === 0) return;
-
-//         game.revealedLetters.push(hiddenIndexes[0]);
-
-//         io.to(room.roomCode).emit("hint-update", {
-//             revealedLetters: game.revealedLetters,
-//         });
-
-//     }, 20 * 1000); // reveal every 20 sec for testing
-
-//     io.to(room.roomCode).emit("round-started", {
-//         round: room.currentRound,
-//         totalRounds: room.settings.rounds,
-//         timeLeft,
-//         artwork: currentPokemon.artwork,
-//         types: currentPokemon.types,
-
-//         // NEW
-//         pokemonName: currentPokemon.name,
-//         revealedLetters: [],
-//     });
-
-//     gameTimers[room.roomCode] = setInterval(async () => {
-//         timeLeft--;
-
-//         io.to(room.roomCode).emit("timer-update", timeLeft);
-
-//         if (timeLeft <= 0) {
-//             clearInterval(gameTimers[room.roomCode]);
-//             delete gameTimers[room.roomCode];
-
-//             clearInterval(hintTimers[room.roomCode]);
-//             delete hintTimers[room.roomCode];
-
-//             room.currentRound++;
-//             game.guessedPlayers = [];
-//             game.guessOrder = 0;
-
-//             if (room.currentRound > room.settings.rounds) {
-//                 room.status = "finished";
-
-//                 await room.save();
-
-//                 io.to(room.roomCode).emit("game-finished");
-
-//                 return;
-//             }
-
-//             await room.save();
-
-//             startRound(io, room);
-//         }
-//     }, 1000);
-// }
 
 function startRound(io, room) {
     const game = activeGames[room.roomCode];
+
 
     // Reset round state
     game.currentPokemon = game.roundPokemon[room.currentRound - 1];
     game.revealedLetters = [];
     game.guessedPlayers = [];
+    io.to(room.roomCode).emit("correct-players", []);
     game.guessOrder = 0;
     game.roundFinished = false;
     game.roundPoints = {};
@@ -174,39 +89,43 @@ function startRound(io, room) {
 
         room.currentRound++;
 
-        if (room.currentRound > room.settings.rounds) {
-
-            room.status = "finished";
-
-            await room.save();
-
-            delete activeGames[room.roomCode];
-
-            const leaderboard = [...room.players].sort(
-                (a, b) => b.score - a.score
-            );
-
-            io.to(room.roomCode).emit("game-finished", {
-                winner: leaderboard[0],
-                leaderboard,
-            });
-
-            return;
-        }
+        const isLastRound = room.currentRound > room.settings.rounds;
 
         await room.save();
 
         io.to(room.roomCode).emit("round-ended", {
             pokemon: game.currentPokemon,
-            players: room.players.map(player => ({
-                trainerName: player.trainerName,
-                points: game.roundPoints[player.trainerName] || 0,
-            }))
+            players: room.players
+                .map(player => ({
+                    trainerName: player.trainerName,
+                    points: game.roundPoints[player.trainerName] || 0,
+                }))
                 .sort((a, b) => b.points - a.points),
         });
 
-        setTimeout(() => {
-            startRound(io, room);
+        setTimeout(async () => {
+            if (isLastRound) {
+                const latestRoom = await Room.findOne({
+                    roomCode: room.roomCode,
+                });
+
+                const leaderboard = latestRoom.players
+                    .map(player => ({
+                        trainerName: player.trainerName,
+                        trainerAvatar: player.trainerAvatar,
+                        score: player.score,
+                    }))
+                    .sort((a, b) => b.score - a.score);
+
+                io.to(room.roomCode).emit("game-finished", {
+                    winner: leaderboard[0],
+                    leaderboard,
+                });
+
+                delete activeGames[room.roomCode];
+            } else {
+                startRound(io, room);
+            }
         }, 3000);
 
     }, 1000);
@@ -408,6 +327,10 @@ export default function roomSocket(io) {
 
                 game.guessOrder++;
                 game.guessedPlayers.push(player.trainerName);
+                io.to(roomCode).emit(
+                    "correct-players",
+                    [...game.guessedPlayers]
+                );
 
                 const points = {
                     1: 100,
@@ -437,7 +360,8 @@ export default function roomSocket(io) {
                     player: player.trainerName,
                 });
 
-                io.to(roomCode).emit("room-updated", room);
+
+
 
                 // Everyone guessed
                 if (game.guessedPlayers.length === room.players.length) {
@@ -454,39 +378,43 @@ export default function roomSocket(io) {
 
                     room.currentRound++;
 
-                    if (room.currentRound > room.settings.rounds) {
-
-                        room.status = "finished";
-
-                        await room.save();
-
-                        delete activeGames[roomCode];
-
-                        const leaderboard = [...room.players].sort(
-                            (a, b) => b.score - a.score
-                        );
-
-                        io.to(room.roomCode).emit("game-finished", {
-                            winner: leaderboard[0],
-                            leaderboard,
-                        });
-
-                        return;
-                    }
+                    const isLastRound = room.currentRound > room.settings.rounds;
 
                     await room.save();
 
                     io.to(room.roomCode).emit("round-ended", {
                         pokemon: game.currentPokemon,
-                        players: room.players.map(player => ({
-                            trainerName: player.trainerName,
-                            points: game.roundPoints[player.trainerName] || 0,
-                        }))
+                        players: room.players
+                            .map(player => ({
+                                trainerName: player.trainerName,
+                                points: game.roundPoints[player.trainerName] || 0,
+                            }))
                             .sort((a, b) => b.points - a.points),
                     });
 
-                    setTimeout(() => {
-                        startRound(io, room);
+                    setTimeout(async () => {
+                        if (isLastRound) {
+                            const latestRoom = await Room.findOne({
+                                roomCode: room.roomCode,
+                            });
+
+                            const leaderboard = latestRoom.players
+                                .map(player => ({
+                                    trainerName: player.trainerName,
+                                    trainerAvatar: player.trainerAvatar,
+                                    score: player.score,
+                                }))
+                                .sort((a, b) => b.score - a.score);
+
+                            io.to(room.roomCode).emit("game-finished", {
+                                winner: leaderboard[0],
+                                leaderboard,
+                            });
+
+                            delete activeGames[room.roomCode];
+                        } else {
+                            startRound(io, room);
+                        }
                     }, 3000);
                 }
 
@@ -532,12 +460,16 @@ export default function roomSocket(io) {
                     return;
                 }
                 // Remove player
-
                 room.players = room.players.filter(
                     p => p.socketId !== socket.id
                 );
 
                 await room.save();
+
+                // Tell everyone that the player left
+                io.to(room.roomCode).emit("player-left", {
+                    player: player.trainerName,
+                });
 
                 io.to(room.roomCode).emit("room-updated", room);
 

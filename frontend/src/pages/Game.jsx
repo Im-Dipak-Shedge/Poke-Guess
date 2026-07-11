@@ -4,10 +4,11 @@ import PokemonCard from "../components/PokemonCard";
 import PlayerList from "../components/PlayerList";
 import ChatBox from "../components/ChatBox";
 import GuessInput from "../components/GuessInput";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import socket from "../socket";
 
 export default function Game() {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const [guess, setGuess] = useState("");
   const [messages, setMessages] = useState([]);
@@ -31,6 +32,8 @@ export default function Game() {
   const [showWinner, setShowWinner] = useState(false);
   const [winner, setWinner] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [showLeaveMenu, setShowLeaveMenu] = useState(false);
+  const [correctPlayers, setCorrectPlayers] = useState([]);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -158,6 +161,21 @@ export default function Game() {
       setTimeLeft(0);
     });
 
+    socket.on("player-left", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          type: "leave",
+          text: `${data.player} left the room`,
+        },
+      ]);
+    });
+
+    socket.on("correct-players", (players) => {
+      setCorrectPlayers(players);
+    });
+
     return () => {
       socket.off("round-started");
       socket.off("timer-update");
@@ -167,6 +185,8 @@ export default function Game() {
       socket.off("player-guessed");
       socket.off("correct-guess");
       socket.off("round-ended");
+      socket.off("player-left");
+      socket.off("correct-players");
     };
   }, []);
 
@@ -201,6 +221,7 @@ export default function Game() {
           timeLeft={timeLeft}
           word={pokemonName}
           revealedLetters={revealedLetters}
+          onSettingsClick={() => setShowLeaveMenu(true)}
         />
 
         <div className="flex flex-1 overflow-hidden">
@@ -217,7 +238,11 @@ export default function Game() {
               lg:rounded-bl-md
             "
           >
-            <PlayerList players={players} trainerName={state?.trainerName} />
+            <PlayerList
+              players={players}
+              trainerName={state?.trainerName}
+              correctPlayers={correctPlayers}
+            />
           </aside>
 
           {/* CENTER */}
@@ -253,7 +278,7 @@ export default function Game() {
               lg:rounded-br-xl
               "
           >
-            <ChatBox messages={messages} />
+            <ChatBox messages={messages} trainerName={state?.trainerName} />
             <GuessInput
               value={guess}
               onChange={(e) => setGuess(e.target.value)}
@@ -272,6 +297,7 @@ export default function Game() {
           timeLeft={timeLeft}
           word={pokemonName}
           revealedLetters={revealedLetters}
+          onSettingsClick={() => setShowLeaveMenu(true)}
         />
         <PokemonCard
           showWinner={showWinner}
@@ -290,11 +316,15 @@ export default function Game() {
 
         <div className="flex flex-1 min-h-0">
           <div className="w-1/2 border-r border-black/10 bg-white">
-            <PlayerList players={players} trainerName={state?.trainerName} />
+            <PlayerList
+              players={players}
+              trainerName={state?.trainerName}
+              correctPlayers={correctPlayers}
+            />
           </div>
 
           <div className="w-1/2 bg-white">
-            <ChatBox messages={messages} />
+            <ChatBox messages={messages} trainerName={state?.trainerName} />
           </div>
         </div>
 
@@ -304,6 +334,55 @@ export default function Game() {
           onSubmit={submitGuess}
         />
       </div>
+
+      {showLeaveMenu && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div
+            className="w-[320px] max-w-[90%] rounded-2xl overflow-hidden"
+            style={{
+              background: "linear-gradient(180deg,#FFFDF6 0%,#F8F0D5 100%)",
+              border: "4px solid #244896",
+            }}
+          >
+            {/* Header */}
+            <div className="bg-[#E53935] py-3 text-center border-b-4 border-[#B71C1C]">
+              <h2 className="text-white font-black text-xl tracking-wide">
+                GAME MENU
+              </h2>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-6 text-center">
+              <div className="text-5xl mb-3">🚪</div>
+
+              <h3 className="font-black text-xl text-[#244896]">Leave Room?</h3>
+
+              <p className="mt-2 text-sm text-[#444]">
+                You will disconnect from the current game.
+              </p>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowLeaveMenu(false)}
+                  className="flex-1 py-2 rounded-xl font-bold bg-gray-200 hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={() => {
+                    socket.disconnect();
+                    navigate("/");
+                  }}
+                  className="flex-1 py-2 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700"
+                >
+                  Leave
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

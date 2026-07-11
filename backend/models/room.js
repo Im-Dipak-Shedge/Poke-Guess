@@ -26,6 +26,10 @@ const playerSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        isCorrect: {
+            type: Boolean,
+            default: false,
+        },
 
     },
     { _id: false }
