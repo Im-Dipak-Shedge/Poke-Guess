@@ -35,6 +35,8 @@ export default function Game() {
   const [showLeaveMenu, setShowLeaveMenu] = useState(false);
   const [correctPlayers, setCorrectPlayers] = useState([]);
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -44,6 +46,23 @@ export default function Game() {
     document.head.appendChild(link);
 
     return () => document.head.removeChild(link);
+  }, []);
+
+  //keyboard height
+  useEffect(() => {
+    if (!window.visualViewport) return;
+
+    const handleResize = () => {
+      const keyboard = window.innerHeight - window.visualViewport.height;
+
+      setKeyboardHeight(keyboard > 100 ? keyboard : 0);
+    };
+
+    window.visualViewport.addEventListener("resize", handleResize);
+
+    return () => {
+      window.visualViewport.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   //playerlist
@@ -294,7 +313,7 @@ export default function Game() {
 
       {/* ======================= MOBILE ======================= */}
 
-      <div className="flex lg:hidden flex-col h-full">
+      <div className="flex lg:hidden flex-col h-full pb-16">
         <GameHeader
           round={round}
           totalRounds={totalRounds}
@@ -332,11 +351,18 @@ export default function Game() {
           </div>
         </div>
 
-        <GuessInput
-          value={guess}
-          onChange={(e) => setGuess(e.target.value)}
-          onSubmit={submitGuess}
-        />
+        <div
+          className="fixed left-0 right-0 z-50 lg:hidden transition-all duration-200"
+          style={{
+            bottom: keyboardHeight,
+          }}
+        >
+          <GuessInput
+            value={guess}
+            onChange={(e) => setGuess(e.target.value)}
+            onSubmit={submitGuess}
+          />
+        </div>
       </div>
 
       {showLeaveMenu && (

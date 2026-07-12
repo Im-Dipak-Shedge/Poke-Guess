@@ -5,11 +5,8 @@ const activeGames = {};
 const gameTimers = {};
 const hintTimers = {};
 
-
 function startRound(io, room) {
     const game = activeGames[room.roomCode];
-
-
     // Reset round state
     game.currentPokemon = game.roundPokemon[room.currentRound - 1];
     game.revealedLetters = [];
@@ -32,7 +29,7 @@ function startRound(io, room) {
         delete hintTimers[room.roomCode];
     }
 
-    let timeLeft = 12;
+    let timeLeft = 62;
 
     io.to(room.roomCode).emit("round-started", {
         round: room.currentRound,
