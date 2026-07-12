@@ -113,8 +113,6 @@ ${
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreate={(settings) => {
-          console.log(settings);
-
           setShowCreateModal(false);
 
           onCreateRoom(settings);

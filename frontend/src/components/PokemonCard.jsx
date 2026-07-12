@@ -52,7 +52,7 @@ export default function PokemonCard({
     3: { ribbon: "border-orange-500", tag: "text-orange-500" },
   };
 
-  console.log(leaderboard);
+  
 
   return (
     <div

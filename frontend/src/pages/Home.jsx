@@ -107,7 +107,6 @@ export default function Home() {
   const handleJoinRoom = async (roomCode) => {
     try {
       const { data } = await joinRoom(roomCode, name, current.img);
-      console.log(data);
 
       setShowPlayModal(false);
 

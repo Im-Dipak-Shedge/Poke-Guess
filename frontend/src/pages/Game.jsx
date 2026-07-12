@@ -97,6 +97,10 @@ export default function Game() {
       setWinner(data.winner);
 
       setLeaderboard(data.leaderboard);
+
+      setTimeout(() => {
+        navigate("/");
+      }, 5000);
     });
 
     socket.on("hint-update", (data) => {

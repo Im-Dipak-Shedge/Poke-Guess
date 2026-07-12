@@ -10,7 +10,6 @@ export const createRoom = async (req, res) => {
             generations,
         } = req.body;
 
-        console.log(hostName, avatar, rounds, generations);
 
         let roomId;
 
