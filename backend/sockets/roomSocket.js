@@ -360,9 +360,6 @@ export default function roomSocket(io) {
                     player: player.trainerName,
                 });
 
-
-
-
                 // Everyone guessed
                 if (game.guessedPlayers.length === room.players.length) {
 
