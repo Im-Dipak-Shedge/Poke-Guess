@@ -63,7 +63,7 @@ function startRound(io, room) {
             revealedLetters: [...game.revealedLetters],
         });
 
-    }, 20000);
+    }, 15000);
 
     // ================= GAME TIMER =================
     gameTimers[room.roomCode] = setInterval(async () => {
