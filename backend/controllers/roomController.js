@@ -1,4 +1,4 @@
-import Room from "../models/Room.js";
+import Room from "../models/room.js";
 import generateRoomId from "../utils/generateRoomId.js";
 
 export const createRoom = async (req, res) => {

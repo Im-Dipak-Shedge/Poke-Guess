@@ -1,4 +1,4 @@
-import Room from "../models/Room.js";
+import Room from "../models/room.js";
 import Pokemon from "../models/Pokemon.js";
 
 const activeGames = {};
