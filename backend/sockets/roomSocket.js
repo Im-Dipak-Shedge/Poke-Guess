@@ -343,6 +343,8 @@ export default function roomSocket(io) {
 
                 await room.save();
 
+                io.to(roomCode).emit("room-updated", room);
+
                 socket.emit("correct-guess", {
                     artwork: game.currentPokemon.artwork,
                     place: game.guessOrder,

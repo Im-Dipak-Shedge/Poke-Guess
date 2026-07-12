@@ -4,13 +4,6 @@ import Pokeball from "./Pokeball";
 export default function GuessInput({ value, onChange, onSubmit }) {
   const inputRef = useRef(null);
 
-  const handleFocus = () => {
-    inputRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-  };
-
   return (
     <form
       onSubmit={onSubmit}
@@ -27,15 +20,11 @@ export default function GuessInput({ value, onChange, onSubmit }) {
         </div>
         <input
           onFocus={() => {
-            requestAnimationFrame(() => {
-              window.scrollTo({
-                top: 0,
-                behavior: "instant",
-              });
-            });
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+            }, 0);
           }}
           ref={inputRef}
-          onFocus={handleFocus}
           type="text"
           value={value}
           onChange={onChange}

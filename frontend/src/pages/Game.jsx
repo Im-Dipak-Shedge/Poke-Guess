@@ -255,7 +255,7 @@ export default function Game() {
 
   return (
     <div
-      className=" h-screen overflow-hidden touch-none overscroll-none bg-repeat lg:px-10 lg:py-4 "
+      className=" h-[100dvh] overflow-hidden touch-none overscroll-none bg-repeat lg:px-10 lg:py-4 "
       style={{
         background:
           "linear-gradient(180deg, #4A78D8 0%, #6B9AE8 32%, #BFE3F2 48%, #6FBE6A 52%, #3E9346 78%, #2C7236 100%)",
@@ -340,7 +340,7 @@ export default function Game() {
 
       {/* ======================= MOBILE ======================= */}
 
-      <div className="flex lg:hidden flex-col h-full pb-16">
+      <div className="flex lg:hidden flex-col h-[100dvh]">
         <GameHeader
           round={round}
           totalRounds={totalRounds}
