@@ -5,7 +5,6 @@ export default function PokemonCard({
   pokemonName,
   src,
   revealed = false,
-  messages = [],
   round,
   showRoundAnimation,
   types = [],
@@ -15,8 +14,6 @@ export default function PokemonCard({
   winner,
   leaderboard = [],
 }) {
-  const recent = messages.slice(-4);
-
   const typeColors = {
     normal: "bg-[#A8A77A] text-white",
     fire: "bg-[#EE8130] text-white",
@@ -52,14 +49,12 @@ export default function PokemonCard({
     3: { ribbon: "border-orange-500", tag: "text-orange-500" },
   };
 
-  
-
   return (
     <div
       className="
     relative
     w-full
-    h-[35%]
+    h-[35lvh]
     lg:h-[85%]
     shrink-0
     flex
