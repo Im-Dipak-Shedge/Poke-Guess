@@ -10,6 +10,7 @@ export default function GuessInput({ value, onChange, onSubmit }) {
       block: "center",
     });
   };
+
   return (
     <form
       onSubmit={onSubmit}
@@ -25,6 +26,15 @@ export default function GuessInput({ value, onChange, onSubmit }) {
           <Pokeball className="w-4 h-4" />
         </div>
         <input
+          onFocus={() => {
+            setTimeout(() => {
+              inputRef.current?.scrollIntoView({
+                block: "nearest",
+                inline: "nearest",
+                behavior: "instant",
+              });
+            }, 50);
+          }}
           ref={inputRef}
           onFocus={handleFocus}
           type="text"
