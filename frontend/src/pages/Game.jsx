@@ -35,8 +35,6 @@
 //   const [showLeaveMenu, setShowLeaveMenu] = useState(false);
 //   const [correctPlayers, setCorrectPlayers] = useState([]);
 
-//   const [keyboardHeight, setKeyboardHeight] = useState(0);
-
 //   useEffect(() => {
 //     const link = document.createElement("link");
 //     link.rel = "stylesheet";
@@ -48,61 +46,19 @@
 //     return () => document.head.removeChild(link);
 //   }, []);
 
-//   // Keyboard height — tracks the on-screen keyboard via the visualViewport
-//   // API so the guess input can dock right above it, skribbl.io-style.
-//   //
-//   // Two things the naive `innerHeight - visualViewport.height` calc misses:
-//   // 1. `offsetTop` — how far the visual viewport has scrolled inside the
-//   //    layout viewport. iOS Safari shifts this when the keyboard opens, so
-//   //    skipping it undercounts the keyboard height and the bar sits too low.
-//   // 2. The `scroll` event — iOS fires `scroll` on visualViewport (not just
-//   //    `resize`) as the keyboard animates in/out, so `resize` alone misses
-//   //    part of the animation and the bar can lag or snap late.
-//   useEffect(() => {
-//     const viewport = window.visualViewport;
-//     if (!viewport) return;
+//   // No JS keyboard tracking needed — see the note above the mobile
+//   // GuessInput render for how the keyboard-docking actually works here.
 
-//     const updateKeyboardHeight = () => {
-//       const overlap = window.innerHeight - viewport.height - viewport.offsetTop;
-//       // Small positive values are just browser UI chrome settling, not a
-//       // real keyboard — ignore anything under ~60px.
-//       setKeyboardHeight(overlap > 60 ? overlap : 0);
-//     };
-
-//     updateKeyboardHeight();
-//     viewport.addEventListener("resize", updateKeyboardHeight);
-//     viewport.addEventListener("scroll", updateKeyboardHeight);
-
-//     return () => {
-//       viewport.removeEventListener("resize", updateKeyboardHeight);
-//       viewport.removeEventListener("scroll", updateKeyboardHeight);
-//     };
-//   }, []);
-
-//   useEffect(() => {
-//     if (keyboardHeight > 0) {
-//       document.body.style.overflow = "hidden";
-//     } else {
-//       document.body.style.overflow = "";
-//     }
-
-//     return () => {
-//       document.body.style.overflow = "";
-//     };
-//   }, [keyboardHeight]);
-
-//   //stopp scrolling
+//   //stopp scrolling — overflow only, no position:fixed. Locking the body
+//   //with position:fixed is what stops mobile browsers from natively
+//   //resizing the layout for the keyboard, which is the whole point below.
 //   useEffect(() => {
 //     document.documentElement.style.overflow = "hidden";
 //     document.body.style.overflow = "hidden";
-//     document.body.style.position = "fixed";
-//     document.body.style.width = "100%";
 
 //     return () => {
 //       document.documentElement.style.overflow = "";
 //       document.body.style.overflow = "";
-//       document.body.style.position = "";
-//       document.body.style.width = "";
 //     };
 //   }, []);
 
@@ -392,21 +348,16 @@
 //           </div>
 //         </div>
 
-//         {/* Guess input — pinned to the bottom, translated up by exactly the
-//            live keyboard height so it always sits flush above it. */}
-//         <div
-//           className="fixed left-0 right-0 z-50 lg:hidden transition-transform duration-150 ease-out"
-//           style={{
-//             bottom: 0,
-//             transform: `translateY(-${keyboardHeight}px)`,
-//           }}
-//         >
-//           <GuessInput
-//             value={guess}
-//             onChange={(e) => setGuess(e.target.value)}
-//             onSubmit={submitGuess}
-//           />
-//         </div>
+//         {/* Guess input — normal flow, bottom of the 100dvh column. When the
+//            keyboard opens, the browser shrinks the layout viewport (see the
+//            viewport meta tag note below) so 100dvh recalculates and this
+//            bottom-most flex child naturally ends up sitting right above the
+//            keyboard — no JS tracking required, same as skribbl.io. */}
+//         <GuessInput
+//           value={guess}
+//           onChange={(e) => setGuess(e.target.value)}
+//           onSubmit={submitGuess}
+//         />
 //       </div>
 
 //       {showLeaveMenu && (
@@ -497,6 +448,39 @@ export default function Game() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [showLeaveMenu, setShowLeaveMenu] = useState(false);
   const [correctPlayers, setCorrectPlayers] = useState([]);
+
+  // Keyboard-proof height for the mobile PokemonCard. `lvh`/`dvh` CSS units
+  // are *supposed* to ignore the on-screen keyboard, but support for that
+  // is inconsistent across mobile browsers/WebViews, so we measure once in
+  // JS instead and lock the card to a real pixel value.
+  //
+  // We only re-measure when `innerWidth` actually changes — a genuine
+  // rotation or window resize. The keyboard opening only ever changes
+  // `innerHeight`, so a height-only change is ignored and the card holds
+  // its size.
+  const [mobileViewportHeight, setMobileViewportHeight] = useState(() =>
+    typeof window !== "undefined" ? window.innerHeight : 0,
+  );
+  const lastWidthRef = useRef(
+    typeof window !== "undefined" ? window.innerWidth : 0,
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth !== lastWidthRef.current) {
+        lastWidthRef.current = window.innerWidth;
+        setMobileViewportHeight(window.innerHeight);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -795,6 +779,7 @@ export default function Game() {
           round={round}
           showRoundAnimation={showRoundAnimation}
           types={pokemonTypes}
+          mobileCardHeight={mobileViewportHeight}
         />
 
         <div className="flex flex-1 min-h-0">
