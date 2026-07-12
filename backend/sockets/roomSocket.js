@@ -1,5 +1,5 @@
 import Room from "../models/room.js";
-import Pokemon from "../models/Pokemon.js";
+import Pokemon from "../models/pokemon.js";
 
 const activeGames = {};
 const gameTimers = {};

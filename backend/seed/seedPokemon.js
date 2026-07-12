@@ -2,7 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 
 import connectDB from "../config/db.js";
-import Pokemon from "../models/Pokemon.js";
+import Pokemon from "../models/pokemon.js";
 
 dotenv.config();
 
