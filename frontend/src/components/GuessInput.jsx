@@ -27,13 +27,12 @@ export default function GuessInput({ value, onChange, onSubmit }) {
         </div>
         <input
           onFocus={() => {
-            setTimeout(() => {
-              inputRef.current?.scrollIntoView({
-                block: "nearest",
-                inline: "nearest",
+            requestAnimationFrame(() => {
+              window.scrollTo({
+                top: 0,
                 behavior: "instant",
               });
-            }, 50);
+            });
           }}
           ref={inputRef}
           onFocus={handleFocus}

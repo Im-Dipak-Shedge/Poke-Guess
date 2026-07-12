@@ -77,6 +77,21 @@ export default function Game() {
     };
   }, [keyboardHeight]);
 
+  //stopp scrolling
+  useEffect(() => {
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+  }, []);
+
   //playerlist
   useEffect(() => {
     socket.on("room-updated", (updatedRoom) => {
@@ -240,7 +255,7 @@ export default function Game() {
 
   return (
     <div
-      className=" h-screen overflow-hidden  bg-repeat lg:px-10 lg:py-4 "
+      className=" h-screen overflow-hidden touch-none overscroll-none bg-repeat lg:px-10 lg:py-4 "
       style={{
         background:
           "linear-gradient(180deg, #4A78D8 0%, #6B9AE8 32%, #BFE3F2 48%, #6FBE6A 52%, #3E9346 78%, #2C7236 100%)",
