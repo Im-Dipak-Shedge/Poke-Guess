@@ -449,15 +449,6 @@ export default function Game() {
   const [showLeaveMenu, setShowLeaveMenu] = useState(false);
   const [correctPlayers, setCorrectPlayers] = useState([]);
 
-  // Keyboard-proof height for the mobile PokemonCard. `lvh`/`dvh` CSS units
-  // are *supposed* to ignore the on-screen keyboard, but support for that
-  // is inconsistent across mobile browsers/WebViews, so we measure once in
-  // JS instead and lock the card to a real pixel value.
-  //
-  // We only re-measure when `innerWidth` actually changes — a genuine
-  // rotation or window resize. The keyboard opening only ever changes
-  // `innerHeight`, so a height-only change is ignored and the card holds
-  // its size.
   const [mobileViewportHeight, setMobileViewportHeight] = useState(() =>
     typeof window !== "undefined" ? window.innerHeight : 0,
   );
@@ -499,6 +490,38 @@ export default function Game() {
   //stopp scrolling — overflow only, no position:fixed. Locking the body
   //with position:fixed is what stops mobile browsers from natively
   //resizing the layout for the keyboard, which is the whole point below.
+
+  //refreshing page alert
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  //tab switch alert
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        alert(
+          "⚠️ You left the game tab. If you stay away too long, your connection may be lost.",
+        );
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
+
   useEffect(() => {
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";

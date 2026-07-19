@@ -268,6 +268,9 @@ export default function roomSocket(io) {
 
                 if (!game || !game.currentPokemon) return;
 
+                // Ignore guesses once the round has ended
+                if (game.roundFinished) return;
+
                 const player = room.players.find(
                     p => p.socketId === socket.id
                 );
