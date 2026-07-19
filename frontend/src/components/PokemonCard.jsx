@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Pokeball from "./Pokeball";
+import { playSound } from "../utils/sound";
 
 export default function PokemonCard({
   pokemonName,
   src,
   revealed = false,
-  messages = [],
   round,
   showRoundAnimation,
   types = [],
@@ -16,8 +16,6 @@ export default function PokemonCard({
   leaderboard = [],
   mobileCardHeight,
 }) {
-  const recent = messages.slice(-4);
-
   const typeColors = {
     normal: "bg-[#A8A77A] text-white",
     fire: "bg-[#EE8130] text-white",
@@ -52,6 +50,18 @@ export default function PokemonCard({
     2: { ribbon: "border-gray-300", tag: "text-gray-400" },
     3: { ribbon: "border-orange-500", tag: "text-orange-500" },
   };
+
+  useEffect(() => {
+    if (showRoundAnimation) {
+      playSound("whosthatpokemon");
+    }
+  }, [showRoundAnimation]);
+
+  useEffect(() => {
+    if (showScoreboard) {
+      playSound("round-end");
+    }
+  }, [showScoreboard]);
 
   return (
     <div
