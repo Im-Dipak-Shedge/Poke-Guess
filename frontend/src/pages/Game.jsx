@@ -93,21 +93,21 @@ export default function Game() {
   }, []);
 
   //tab switch alert
-  // useEffect(() => {
-  //   const handleVisibility = () => {
-  //     if (document.hidden) {
-  //       alert(
-  //         "⚠️ You left the game tab. If you stay away too long, your connection may be lost.",
-  //       );
-  //     }
-  //   };
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        alert(
+          "⚠️ You left the game tab. If you stay away too long, your connection may be lost.",
+        );
+      }
+    };
 
-  //   document.addEventListener("visibilitychange", handleVisibility);
+    document.addEventListener("visibilitychange", handleVisibility);
 
-  //   return () => {
-  //     document.removeEventListener("visibilitychange", handleVisibility);
-  //   };
-  // }, []);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.overflow = "hidden";

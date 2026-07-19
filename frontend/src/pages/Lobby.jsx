@@ -56,6 +56,16 @@ export default function Lobby() {
   }, [navigate]);
 
   useEffect(() => {
+    socket.on("not-enough-players", () => {
+      alert("At least 2 players are required to start the game.");
+    });
+
+    return () => {
+      socket.off("not-enough-players");
+    };
+  }, []);
+
+  useEffect(() => {
     socket.on("room-updated", (updatedRoom) => {
       setRoomData(updatedRoom);
     });

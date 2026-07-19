@@ -293,14 +293,6 @@ export default function Home() {
             </div>
 
             <button
-              onClick={() => requireName("Searching for a room...")}
-              className="w-full bg-gradient-to-b from-yellow-300 to-yellow-400 hover:brightness-105 active:scale-[0.98] transition text-yellow-900 text-sm font-bold uppercase tracking-wide rounded-full py-3 mb-3 flex items-center justify-center gap-2 border-2 border-yellow-600/40 shadow-[0_5px_0_#B8860B] active:shadow-[0_1px_0_#B8860B] active:translate-y-1"
-            >
-              <Pokeball className="w-4 h-4" />
-              Practice
-            </button>
-
-            <button
               onClick={() => {
                 if (!name.trim()) {
                   setStatus("Enter a trainer name first");
@@ -310,10 +302,10 @@ export default function Home() {
                 setStatus("");
                 setShowPlayModal(true);
               }}
-              className="w-full bg-gradient-to-b from-green-400 to-green-500 hover:brightness-105 active:scale-[0.98] transition text-white text-sm font-bold uppercase tracking-wide rounded-full py-3 flex items-center justify-center gap-2 border-2 border-green-700/40 shadow-[0_5px_0_#1F6B37] active:shadow-[0_1px_0_#1F6B37] active:translate-y-1"
+              className="w-full bg-gradient-to-b from-green-400 to-green-500 hover:brightness-105 active:scale-[0.98] transition text-white text-md font-bold uppercase tracking-wide rounded-full py-3 flex items-center justify-center gap-2 border-2 border-green-700/40 shadow-[0_5px_0_#1F6B37] active:shadow-[0_1px_0_#1F6B37] active:translate-y-1"
             >
               <Users size={16} strokeWidth={2.5} />
-              Play With Friends
+              Play
             </button>
           </div>
         </div>

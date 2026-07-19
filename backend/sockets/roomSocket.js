@@ -190,15 +190,9 @@ export default function roomSocket(io) {
                 if (room.status === "playing") return;
 
                 if (room.players.length < 2) {
-                    socket.emit(
-                        "error-message",
-                        "Need at least 2 players."
-                    );
+                    socket.emit("not-enough-players");
                     return;
                 }
-
-
-
 
                 // Get all pokemon from selected generations
                 const pokemonPool = await Pokemon.find({

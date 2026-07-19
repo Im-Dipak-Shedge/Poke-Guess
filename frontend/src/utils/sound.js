@@ -15,7 +15,6 @@ Object.values(sounds).forEach((audio) => {
 
 export function playSound(name, volume = 1) {
     const audio = sounds[name];
-    console.log(name);
 
     if (!audio) return;
 
